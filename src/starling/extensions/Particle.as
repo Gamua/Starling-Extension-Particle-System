@@ -27,7 +27,5 @@ package starling.extensions
             totalTime = alpha = scale = 1.0;
             color = 0xffffff;
         }
-        
-        public function get isComplete():Boolean { return currentTime >= totalTime; }
     }
 }

@@ -175,9 +175,9 @@ package starling.extensions
             
             while (particleIndex < mNumParticles)
             {
-                particle = mParticles[particleIndex];
+                particle = mParticles[particleIndex] as Particle;
                 
-                if (!particle.isComplete)
+                if (particle.currentTime < particle.totalTime)
                 {
                     advanceParticle(particle, passedTime);
                     ++particleIndex;
@@ -186,7 +186,7 @@ package starling.extensions
                 {
                     if (particleIndex != mNumParticles - 1)
                     {
-                        var nextParticle:Particle = mParticles[mNumParticles - 1];
+                        var nextParticle:Particle = mParticles[mNumParticles - 1] as Particle;
                         mParticles[mNumParticles-1] = particle;
                         mParticles[particleIndex] = nextParticle;
                     }
@@ -207,7 +207,7 @@ package starling.extensions
                     if (mNumParticles == capacity)
                         raiseCapacity(capacity);
                     
-                    particle = mParticles[mNumParticles++];
+                    particle = mParticles[mNumParticles++] as Particle;
                     initParticle(particle);
                     advanceParticle(particle, mFrameTime);
                     
@@ -225,17 +225,19 @@ package starling.extensions
             var alpha:Number;
             var x:Number, y:Number;
             var xOffset:Number, yOffset:Number;
+            var textureWidth:Number = mTexture.width;
+            var textureHeight:Number = mTexture.height;
             
             for (var i:int=0; i<mNumParticles; ++i)
             {
                 vertexID = i << 2;
-                particle = mParticles[i];                
+                particle = mParticles[i] as Particle;
                 color = particle.color;
                 alpha = particle.alpha;
                 x = particle.x;
                 y = particle.y;
-                xOffset = mTexture.width  * particle.scale / 2;
-                yOffset = mTexture.height * particle.scale / 2;
+                xOffset = textureWidth  * particle.scale / 2;
+                yOffset = textureHeight * particle.scale / 2;
                 
                 for (var j:int=0; j<4; ++j)
                     mVertexData.setColor(vertexID+j, color, alpha);

@@ -82,54 +82,77 @@ package starling.extensions
         {
             var particle:PDParticle = aParticle as PDParticle; 
          
-            var lifespan:Number = getRandomVariance(mLifespan, mLifespanVariance);
+            // for performance reasons, the random variances are calculated inline instead
+            // of calling a function
+            
+            var lifespan:Number = mLifespan + mLifespanVariance * (Math.random() * 2.0 - 1.0); 
             if (lifespan <= 0.0) return;
             
             particle.currentTime = 0.0;
             particle.totalTime = lifespan;
             
-            particle.x = getRandomVariance(mEmitterX, mEmitterXVariance);
-            particle.y = getRandomVariance(mEmitterY, mEmitterYVariance);
+            particle.x = mEmitterX + mEmitterXVariance * (Math.random() * 2.0 - 1.0);
+            particle.y = mEmitterY + mEmitterYVariance * (Math.random() * 2.0 - 1.0);
             particle.startX = mEmitterX;
             particle.startY = mEmitterY;
             
-            var angle:Number = getRandomVariance(mEmitAngle, mEmitAngleVariance);
-            var speed:Number = getRandomVariance(mSpeed, mSpeedVariance);
+            var angle:Number = mEmitAngle + mEmitAngleVariance * (Math.random() * 2.0 - 1.0);
+            var speed:Number = mSpeed + mSpeedVariance * (Math.random() * 2.0 - 1.0);
             particle.velocityX = speed * Math.cos(angle);
             particle.velocityY = speed * Math.sin(angle);
             
-            particle.radius = getRandomVariance(mMaxRadius, mMaxRadiusVariance);
+            particle.radius = mMaxRadius + mMaxRadiusVariance * (Math.random() * 2.0 - 1.0);
             particle.radiusDelta = mMaxRadius / lifespan;
-            particle.rotation = getRandomVariance(mEmitAngle, mEmitAngleVariance);
-            particle.rotationDelta = getRandomVariance(mRotatePerSecond, mRotatePerSecondVariance);
+            particle.rotation = mEmitAngle + mEmitAngleVariance * (Math.random() * 2.0 - 1.0); 
+            particle.rotationDelta = mRotatePerSecond + mRotatePerSecondVariance * (Math.random() * 2.0 - 1.0); 
             particle.radialAcceleration = mRadialAcceleration;
             particle.tangentialAcceleration = mTangentialAcceleration;
             
-            var startSize:Number = Math.max(0.1, getRandomVariance(mStartSize, mStartSizeVariance));
-            var endSize:Number = Math.max(0.1, getRandomVariance(mEndSize, mEndSizeVariance));
+            var startSize:Number = mStartSize + mStartSizeVariance * (Math.random() * 2.0 - 1.0); 
+            var endSize:Number = mEndSize + mEndSizeVariance * (Math.random() * 2.0 - 1.0);
+            if (startSize < 0.1) startSize = 0.1;
+            if (endSize < 0.1)   endSize = 0.1;
             particle.scale = startSize / texture.width;
             particle.scaleDelta = ((endSize - startSize) / lifespan) / texture.width;
             
-            var startColor:ColorArgb = getRandomColorVariance(mStartColor, mStartColorVariance);
-            var endColor:ColorArgb   = getRandomColorVariance(mEndColor,   mEndColorVariance);
+            // colors
             
-            var colorDelta:ColorArgb = new ColorArgb();
-            colorDelta.red   = (endColor.red   - startColor.red)   / lifespan;
-            colorDelta.green = (endColor.green - startColor.green) / lifespan;
-            colorDelta.blue  = (endColor.blue  - startColor.blue)  / lifespan;
-            colorDelta.alpha = (endColor.alpha - startColor.alpha) / lifespan;
+            var startColor:ColorArgb = particle.colorArgb;
+            var colorDelta:ColorArgb = particle.colorArgbDelta;
             
-            particle.colorArgb = startColor;
-            particle.colorArgbDelta = colorDelta;
+            startColor.red   = mStartColor.red;
+            startColor.green = mStartColor.green;
+            startColor.blue  = mStartColor.blue;
+            startColor.alpha = mStartColor.alpha;
+            
+            if (mStartColorVariance.red != 0)   startColor.red   += mStartColorVariance.red   * (Math.random() * 2.0 - 1.0);
+            if (mStartColorVariance.green != 0) startColor.green += mStartColorVariance.green * (Math.random() * 2.0 - 1.0);
+            if (mStartColorVariance.blue != 0)  startColor.blue  += mStartColorVariance.blue  * (Math.random() * 2.0 - 1.0);
+            if (mStartColorVariance.alpha != 0) startColor.alpha += mStartColorVariance.alpha * (Math.random() * 2.0 - 1.0);
+            
+            var endColorRed:Number   = mEndColor.red;
+            var endColorGreen:Number = mEndColor.green;
+            var endColorBlue:Number  = mEndColor.blue;
+            var endColorAlpha:Number = mEndColor.alpha;
+
+            if (mEndColorVariance.red != 0)   endColorRed   += mEndColorVariance.red   * (Math.random() * 2.0 - 1.0);
+            if (mEndColorVariance.green != 0) endColorGreen += mEndColorVariance.green * (Math.random() * 2.0 - 1.0);
+            if (mEndColorVariance.blue != 0)  endColorBlue  += mEndColorVariance.blue  * (Math.random() * 2.0 - 1.0);
+            if (mEndColorVariance.alpha != 0) endColorAlpha += mEndColorVariance.alpha * (Math.random() * 2.0 - 1.0);
+            
+            colorDelta.red   = (endColorRed   - startColor.red)   / lifespan;
+            colorDelta.green = (endColorGreen - startColor.green) / lifespan;
+            colorDelta.blue  = (endColorBlue  - startColor.blue)  / lifespan;
+            colorDelta.alpha = (endColorAlpha - startColor.alpha) / lifespan;
         }
         
         protected override function advanceParticle(aParticle:Particle, passedTime:Number):void
         {
             var particle:PDParticle = aParticle as PDParticle;
             
-            passedTime = Math.min(passedTime, particle.totalTime - particle.currentTime);
+            var restTime:Number = particle.totalTime - particle.currentTime;
+            passedTime = restTime > passedTime ? passedTime : restTime;
             particle.currentTime += passedTime;
-            var timeToLive:Number = particle.totalTime - particle.currentTime;
             
             if (mEmitterType == EMITTER_TYPE_RADIAL)
             {
@@ -145,8 +168,8 @@ package starling.extensions
             {
                 var distanceX:Number = particle.x - particle.startX;
                 var distanceY:Number = particle.y - particle.startY;
-                var distanceScalar:Number = 
-                    Math.max(0.01, Math.sqrt(distanceX * distanceX + distanceY * distanceY));
+                var distanceScalar:Number = Math.sqrt(distanceX*distanceX + distanceY*distanceY);
+                if (distanceScalar < 0.01) distanceScalar = 0.01;
                 
                 var radialX:Number = distanceX / distanceScalar;
                 var radialY:Number = distanceY / distanceScalar;
@@ -247,28 +270,6 @@ package starling.extensions
                     default:    throw new ArgumentError("unsupported blending function: " + value);
                 }
             }
-        }
-        
-        // utility functions
-        
-        private function clamp(x:Number, a:Number, b:Number):Number
-        {
-            return x < a ? a : (x > b ? b : x);
-        }
-        
-        private function getRandomVariance(base:Number, variance:Number):Number
-        {
-            return base + variance * (Math.random() * 2.0 - 1.0);
-        }
-        
-        private function getRandomColorVariance(base:ColorArgb, variance:ColorArgb):ColorArgb
-        {
-            var color:ColorArgb = new ColorArgb();
-            color.red   = clamp(getRandomVariance(base.red,   variance.red),   0.0, 1.0);
-            color.green = clamp(getRandomVariance(base.green, variance.green), 0.0, 1.0);
-            color.blue  = clamp(getRandomVariance(base.blue,  variance.blue),  0.0, 1.0);
-            color.alpha = clamp(getRandomVariance(base.alpha, variance.alpha), 0.0, 1.0);
-            return color;
         }
     }
 }

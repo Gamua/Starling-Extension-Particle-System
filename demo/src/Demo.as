@@ -70,7 +70,7 @@ package
             // create FPS label
             
             mFrameCount = mFrameTime = 0;
-            mFrameLabel = new TextField(64, 16, "FPS:", "Arial", 12, 0xffffff);
+            mFrameLabel = new TextField(64, 16, "FPS: ?", "Arial", 12, 0xffffff);
             mFrameLabel.hAlign = HAlign.LEFT;
             addChild(mFrameLabel);
             
@@ -98,7 +98,7 @@ package
             mFrameCount++;
             mFrameTime += event.passedTime;
             
-            if (mFrameTime > 1)
+            if (mFrameTime > 2)
             {
                 mFrameLabel.text = "FPS: " + int(mFrameCount / mFrameTime);
                 mFrameTime = mFrameCount = 0;
