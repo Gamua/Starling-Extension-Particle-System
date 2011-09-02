@@ -25,11 +25,8 @@ package starling.extensions
     import starling.core.Starling;
     import starling.display.DisplayObject;
     import starling.display.Image;
-    import starling.display.Quad;
     import starling.errors.MissingContextError;
     import starling.textures.Texture;
-    import starling.textures.TextureSmoothing;
-    import starling.utils.Color;
     import starling.utils.VertexData;
     
     public class ParticleSystem extends DisplayObject implements IAnimatable

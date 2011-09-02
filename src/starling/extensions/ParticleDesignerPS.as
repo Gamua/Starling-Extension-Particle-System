@@ -11,15 +11,8 @@
 package starling.extensions
 {
     import flash.display3D.Context3DBlendFactor;
-    import flash.utils.Dictionary;
-    import flash.xml.XMLNode;
     
-    import flashx.textLayout.elements.BreakElement;
-    
-    import starling.core.RenderSupport;
-    import starling.core.Starling;
     import starling.textures.Texture;
-    import starling.utils.Color;
     import starling.utils.deg2rad;
     
     public class ParticleDesignerPS extends ParticleSystem
