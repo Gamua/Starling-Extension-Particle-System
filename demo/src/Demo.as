@@ -18,6 +18,8 @@ package
     
     public class Demo extends Sprite
     {
+        // particle designer configurations
+        
         [Embed(source="../media/drugs.pex", mimeType="application/octet-stream")]
         private static const DrugsConfig:Class;
         
@@ -30,17 +32,21 @@ package
         [Embed(source="../media/jellyfish.pex", mimeType="application/octet-stream")]
         private static const JellyfishConfig:Class;
         
+        // particle textures
+        
         [Embed(source = "../media/drugs_particle.png")]
         private static const DrugsParticle:Class;
         
         [Embed(source = "../media/fire_particle.png")]
         private static const FireParticle:Class;
         
-        [Embed(source = "../media/drugs_particle.png")]
+        [Embed(source = "../media/sun_particle.png")]
         private static const SunParticle:Class;
         
-        [Embed(source = "../media/drugs_particle.png")]
+        [Embed(source = "../media/jellyfish_particle.png")]
         private static const JellyfishParticle:Class;
+        
+        // member variables
         
         private var mParticleSystem:ParticleSystem;
         private var mFrameLabel:TextField;
