@@ -101,12 +101,11 @@ package
         
         private function onTouch(event:TouchEvent):void
         {
-            var touch:Touch = event.getTouch(this);
+            var touch:Touch = event.getTouch(stage);
             if (touch && touch.phase != TouchPhase.HOVER)
             {
-                var location:Point = touch.getLocation(this);
-                mParticleSystem.emitterX = location.x;
-                mParticleSystem.emitterY = location.y;
+                mParticleSystem.emitterX = touch.globalX;
+                mParticleSystem.emitterY = touch.globalY;
             }
         }
     }
