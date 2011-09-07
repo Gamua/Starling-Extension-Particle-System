@@ -159,7 +159,7 @@ package starling.extensions
         
         public override function getBounds(targetSpace:DisplayObject):Rectangle
         {
-            var matrix:Matrix = getTransformationMatrixToSpace(targetSpace);
+            var matrix:Matrix = getTransformationMatrix(targetSpace);
             var position:Point = matrix.transformPoint(new Point(x, y));
             return new Rectangle(position.x, position.y);
         }
@@ -236,8 +236,8 @@ package starling.extensions
                 alpha = particle.alpha;
                 x = particle.x;
                 y = particle.y;
-                xOffset = textureWidth  * particle.scale / 2;
-                yOffset = textureHeight * particle.scale / 2;
+                xOffset = textureWidth  * particle.scale >> 1;
+                yOffset = textureHeight * particle.scale >> 1;
                 
                 for (var j:int=0; j<4; ++j)
                     mVertexData.setColor(vertexID+j, color, alpha);
