@@ -28,6 +28,7 @@ package starling.extensions
     import starling.display.DisplayObject;
     import starling.display.Image;
     import starling.errors.MissingContextError;
+    import starling.events.Event;
     import starling.textures.Texture;
     import starling.textures.TextureSmoothing;
     import starling.utils.VertexData;
@@ -47,7 +48,7 @@ package starling.extensions
         private var mNumParticles:int;
         private var mEmissionRate:Number; // emitted particles per second
         private var mEmissionTime:Number;
-        
+                
         /** Helper object. */
         private static var sRenderAlpha:Vector.<Number> = new <Number>[1.0, 1.0, 1.0, 1.0];
         
@@ -199,6 +200,10 @@ package starling.extensions
                     }
                     
                     --mNumParticles;
+                    
+                    if (mNumParticles == 0)
+                        dispatchEvent(new Event("complete")); // TODO: use "Event.COMPLETE"
+                                              // when it's available in an official release
                 }
             }
             
@@ -337,6 +342,9 @@ package starling.extensions
         
         public function get isComplete():Boolean
         {
+            // This method just tells the juggler if the particle system is finished and can be 
+            // removed. Since the PS can be restarted, it should never be removed automatically.
+            
             return false;
         }
         
