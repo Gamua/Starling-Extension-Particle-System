@@ -165,7 +165,8 @@ package starling.extensions
             mEmissionTime = 0.0;
         }
         
-        public override function getBounds(targetSpace:DisplayObject):Rectangle
+        public override function getBounds(targetSpace:DisplayObject, 
+                                           resultRect:Rectangle=null):Rectangle
         {
             var matrix:Matrix = getTransformationMatrix(targetSpace);
             var position:Point = matrix.transformPoint(new Point(x, y));
