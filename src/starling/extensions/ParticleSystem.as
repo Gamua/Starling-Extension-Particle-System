@@ -35,6 +35,9 @@ package starling.extensions
     
     public class ParticleSystem extends DisplayObject implements IAnimatable
     {
+        private static const PROGRAM_MIPMAP:String    = "PS_mm";
+        private static const PROGRAM_NO_MIPMAP:String = "PS_nm"
+        
         private var mTexture:Texture;
         private var mParticles:Vector.<Particle>;
         private var mFrameTime:Number;
@@ -48,7 +51,7 @@ package starling.extensions
         private var mNumParticles:int;
         private var mEmissionRate:Number; // emitted particles per second
         private var mEmissionTime:Number;
-                
+        
         /** Helper object. */
         private static var sRenderAlpha:Vector.<Number> = new <Number>[1.0, 1.0, 1.0, 1.0];
         
@@ -78,8 +81,11 @@ package starling.extensions
             mBlendFactorSource = blendFactorSource ||
                 (mPremultipliedAlpha ? Context3DBlendFactor.ONE : Context3DBlendFactor.SOURCE_ALPHA);
             
-            registerProgram(texture.mipMapping);
+            registerPrograms();
             raiseCapacity(initialCapacity);
+            
+            // handle a lost device context
+            Starling.current.addEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
         }
         
         public override function dispose():void
@@ -87,7 +93,15 @@ package starling.extensions
             if (mVertexBuffer) mVertexBuffer.dispose();
             if (mIndexBuffer)  mIndexBuffer.dispose();
             
+            Starling.current.removeEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
+            
             super.dispose();
+        }
+        
+        private function onContextCreated(event:Event):void
+        {
+            registerPrograms();
+            raiseCapacity(0);
         }
         
         protected function createParticle():Particle
@@ -274,7 +288,7 @@ package starling.extensions
             
             alpha *= this.alpha;
             
-            var program:String = getProgramName(mTexture.mipMapping);
+            var program:String = mTexture.mipMapping ? PROGRAM_MIPMAP : PROGRAM_NO_MIPMAP;
             var context:Context3D = Starling.context;
             var pma:Boolean = texture.premultipliedAlpha;
             
@@ -305,40 +319,37 @@ package starling.extensions
         
         // program management
         
-        private static function registerProgram(mipmap:Boolean):void
+        private static function registerPrograms():void
         {
             var target:Starling = Starling.current;
-            var programName:String = getProgramName(mipmap);
+            if (target.hasProgram(PROGRAM_MIPMAP)) return; // already registered
             
-            if (target.hasProgram(programName)) return; // already registered
-            
-            // create vertex and fragment programs - from assembly.            
-            
-            var textureOptions:String = "2d, clamp, linear, " + (mipmap ? "mipnearest" : "mipnone"); 
-            
-            var vertexProgramCode:String =
-                "m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clipspace
-                "mov v0, va1      \n" + // pass color to fragment program
-                "mov v1, va2      \n";  // pass texture coordinates to fragment program
-            
-            var fragmentProgramCode:String =
-                "tex ft1, v1, fs0 <" + textureOptions + "> \n" + // sample texture 0
-                "mul ft2, ft1, v0                          \n" + // multiply color with texel color
-                "mul oc, ft2, fc0                          \n";   // multiply color with alpha
-            
-            var vertexProgramAssembler:AGALMiniAssembler = new AGALMiniAssembler();
-            vertexProgramAssembler.assemble(Context3DProgramType.VERTEX, vertexProgramCode);
-            
-            var fragmentProgramAssembler:AGALMiniAssembler = new AGALMiniAssembler();
-            fragmentProgramAssembler.assemble(Context3DProgramType.FRAGMENT, fragmentProgramCode);
-            
-            target.registerProgram(programName, vertexProgramAssembler.agalcode,
-                                                fragmentProgramAssembler.agalcode);
-        }
-
-        private static function getProgramName(mipmap:Boolean):String
-        {
-            return mipmap ? "PS_mm" : "PS_nm";
+            for each (var mipmap:Boolean in [true, false])
+            {            
+                // create vertex and fragment programs - from assembly.
+                
+                var programName:String = mipmap ? PROGRAM_MIPMAP : PROGRAM_NO_MIPMAP;
+                var textureOptions:String = "2d, clamp, linear, " + (mipmap ? "mipnearest" : "mipnone"); 
+                
+                var vertexProgramCode:String =
+                    "m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clipspace
+                    "mov v0, va1      \n" + // pass color to fragment program
+                    "mov v1, va2      \n";  // pass texture coordinates to fragment program
+                
+                var fragmentProgramCode:String =
+                    "tex ft1, v1, fs0 <" + textureOptions + "> \n" + // sample texture 0
+                    "mul ft2, ft1, v0                          \n" + // multiply color with texel color
+                    "mul oc, ft2, fc0                          \n";   // multiply color with alpha
+                
+                var vertexProgramAssembler:AGALMiniAssembler = new AGALMiniAssembler();
+                vertexProgramAssembler.assemble(Context3DProgramType.VERTEX, vertexProgramCode);
+                
+                var fragmentProgramAssembler:AGALMiniAssembler = new AGALMiniAssembler();
+                fragmentProgramAssembler.assemble(Context3DProgramType.FRAGMENT, fragmentProgramCode);
+                
+                target.registerProgram(programName, vertexProgramAssembler.agalcode,
+                                                    fragmentProgramAssembler.agalcode);
+            }
         }
         
         public function get isComplete():Boolean
