@@ -85,7 +85,8 @@ package starling.extensions
             raiseCapacity(initialCapacity);
             
             // handle a lost device context
-            Starling.current.addEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
+            // TODO: enable with next official Starling release
+            // Starling.current.addEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
         }
         
         public override function dispose():void
@@ -93,7 +94,8 @@ package starling.extensions
             if (mVertexBuffer) mVertexBuffer.dispose();
             if (mIndexBuffer)  mIndexBuffer.dispose();
             
-            Starling.current.removeEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
+            // TODO: enable with next official Starling release
+            // Starling.current.removeEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
             
             super.dispose();
         }
@@ -179,8 +181,10 @@ package starling.extensions
             mEmissionTime = 0.0;
         }
         
-        public override function getBounds(targetSpace:DisplayObject, 
-                                           resultRect:Rectangle=null):Rectangle
+        // TODO: enable with next official Starling release
+        // public override function getBounds(targetSpace:DisplayObject, 
+        //                                   resultRect:Rectangle=null):Rectangle
+        public override function getBounds(targetSpace:DisplayObject):Rectangle
         {
             var matrix:Matrix = getTransformationMatrix(targetSpace);
             var position:Point = matrix.transformPoint(new Point(x, y));
