@@ -376,6 +376,12 @@ package starling.extensions
         public function get emitterY():Number { return mEmitterY; }
         public function set emitterY(value:Number):void { mEmitterY = value; }
         
+        public function get blendFactorSource():String { return mBlendFactorSource; }
+        public function set blendFactorSource(value:String):void { mBlendFactorSource = value; }
+        
+        public function get blendFactorDestination():String { return mBlendFactorDestination; }
+        public function set blendFactorDestination(value:String):void { mBlendFactorDestination = value; }
+        
         public function get texture():Texture { return mTexture; }
     }
 }

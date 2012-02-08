@@ -200,6 +200,11 @@ package starling.extensions
             particle.alpha = particle.colorArgb.alpha;
         }
         
+        private function updateEmissionRate():void
+        {
+            emissionRate = mMaxNumParticles / mLifespan;
+        }
+        
         private function parseConfig(config:XML):void
         {
             mEmitterXVariance = parseFloat(config.sourcePositionVariance.attribute("x"));
@@ -271,8 +276,106 @@ package starling.extensions
                 }
             }
         }
+        
+        public function get emitterType():int { return mEmitterType; }
+        public function set emitterType(value:int):void { mEmitterType = value; }
+
+        public function get emitterXVariance():Number { return mEmitterXVariance; }
+        public function set emitterXVariance(value:Number):void { mEmitterXVariance = value; }
+
+        public function get emitterYVariance():Number { return mEmitterYVariance; }
+        public function set emitterYVariance(value:Number):void { mEmitterYVariance = value; }
+
+        public function get maxNumParticles():int { return mMaxNumParticles; }
+        public function set maxNumParticles(value:int):void 
+        { 
+            mMaxNumParticles = value; 
+            updateEmissionRate(); 
+        }
+
+        public function get lifespan():Number { return mLifespan; }
+        public function set lifespan(value:Number):void 
+        { 
+            mLifespan = Math.max(0.01, value);
+            updateEmissionRate();
+        }
+
+        public function get lifespanVariance():Number { return mLifespanVariance; }
+        public function set lifespanVariance(value:Number):void { mLifespanVariance = value; }
+
+        public function get startSize():Number { return mStartSize; }
+        public function set startSize(value:Number):void { mStartSize = value; }
+
+        public function get startSizeVariance():Number { return mStartSizeVariance; }
+        public function set startSizeVariance(value:Number):void { mStartSizeVariance = value; }
+
+        public function get endSize():Number { return mEndSize; }
+        public function set endSize(value:Number):void { mEndSize = value; }
+
+        public function get endSizeVariance():Number { return mEndSizeVariance; }
+        public function set endSizeVariance(value:Number):void { mEndSizeVariance = value; }
+
+        public function get emitAngle():Number { return mEmitAngle; }
+        public function set emitAngle(value:Number):void { mEmitAngle = value; }
+
+        public function get emitAngleVariance():Number { return mEmitAngleVariance; }
+        public function set emitAngleVariance(value:Number):void { mEmitAngleVariance = value; }
+
+        public function get speed():Number { return mSpeed; }
+        public function set speed(value:Number):void { mSpeed = value; }
+
+        public function get speedVariance():Number { return mSpeedVariance; }
+        public function set speedVariance(value:Number):void { mSpeedVariance = value; }
+
+        public function get gravityX():Number { return mGravityX; }
+        public function set gravityX(value:Number):void { mGravityX = value; }
+
+        public function get gravityY():Number { return mGravityY; }
+        public function set gravityY(value:Number):void { mGravityY = value; }
+
+        public function get radialAcceleration():Number { return mRadialAcceleration; }
+        public function set radialAcceleration(value:Number):void { mRadialAcceleration = value; }
+
+        public function get radialAccelerationVariance():Number { return mRadialAccelerationVariance; }
+        public function set radialAccelerationVariance(value:Number):void { mRadialAccelerationVariance = value; }
+
+        public function get tangentialAcceleration():Number { return mTangentialAcceleration; }
+        public function set tangentialAcceleration(value:Number):void { mTangentialAcceleration = value; }
+
+        public function get tangentialAccelerationVariance():Number { return mTangentialAccelerationVariance; }
+        public function set tangentialAccelerationVariance(value:Number):void { mTangentialAccelerationVariance = value; }
+
+        public function get maxRadius():Number { return mMaxRadius; }
+        public function set maxRadius(value:Number):void { mMaxRadius = value; }
+
+        public function get maxRadiusVariance():Number { return mMaxRadiusVariance; }
+        public function set maxRadiusVariance(value:Number):void { mMaxRadiusVariance = value; }
+
+        public function get minRadius():Number { return mMinRadius; }
+        public function set minRadius(value:Number):void { mMinRadius = value; }
+
+        public function get rotatePerSecond():Number { return mRotatePerSecond; }
+        public function set rotatePerSecond(value:Number):void { mRotatePerSecond = value; }
+
+        public function get rotatePerSecondVariance():Number { return mRotatePerSecondVariance; }
+        public function set rotatePerSecondVariance(value:Number):void { mRotatePerSecondVariance = value; }
+
+        public function get startColor():ColorArgb { return mStartColor; }
+        public function set startColor(value:ColorArgb):void { mStartColor = value; }
+
+        public function get startColorVariance():ColorArgb { return mStartColorVariance; }
+        public function set startColorVariance(value:ColorArgb):void { mStartColorVariance = value; }
+
+        public function get endColor():ColorArgb { return mEndColor; }
+        public function set endColor(value:ColorArgb):void { mEndColor = value; }
+
+        public function get endColorVariance():ColorArgb { return mEndColorVariance; }
+        public function set endColorVariance(value:ColorArgb):void { mEndColorVariance = value; }
     }
 }
+
+
+import starling.extensions.ColorArgb;
 
 class PDParticle extends starling.extensions.Particle
 {
@@ -293,15 +396,3 @@ class PDParticle extends starling.extensions.Particle
     }
 }
 
-class ColorArgb
-{
-    public var alpha:Number;
-    public var red:Number;
-    public var green:Number;
-    public var blue:Number;
-    
-    public function toRgb():uint
-    {
-        return int(red   * 255) << 16 | int(green * 255) << 8 | int(blue  * 255);       
-    }
-}
