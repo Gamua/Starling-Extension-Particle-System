@@ -85,8 +85,7 @@ package starling.extensions
             raiseCapacity(initialCapacity);
             
             // handle a lost device context
-            // TODO: enable with next official Starling release
-            // Starling.current.addEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
+            Starling.current.addEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
         }
         
         public override function dispose():void
@@ -94,8 +93,7 @@ package starling.extensions
             if (mVertexBuffer) mVertexBuffer.dispose();
             if (mIndexBuffer)  mIndexBuffer.dispose();
             
-            // TODO: enable with next official Starling release
-            // Starling.current.removeEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
+            Starling.current.removeEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
             
             super.dispose();
         }
@@ -181,10 +179,8 @@ package starling.extensions
             mEmissionTime = 0.0;
         }
         
-        // TODO: enable with next official Starling release
-        // public override function getBounds(targetSpace:DisplayObject, 
-        //                                   resultRect:Rectangle=null):Rectangle
-        public override function getBounds(targetSpace:DisplayObject):Rectangle
+        public override function getBounds(targetSpace:DisplayObject, 
+                                           resultRect:Rectangle=null):Rectangle
         {
             var matrix:Matrix = getTransformationMatrix(targetSpace);
             var position:Point = matrix.transformPoint(new Point(x, y));
@@ -354,14 +350,6 @@ package starling.extensions
                 target.registerProgram(programName, vertexProgramAssembler.agalcode,
                                                     fragmentProgramAssembler.agalcode);
             }
-        }
-        
-        public function get isComplete():Boolean
-        {
-            // This method just tells the juggler if the particle system is finished and can be 
-            // removed. Since the PS can be restarted, it should never be removed automatically.
-            
-            return false;
         }
         
         public function get capacity():int { return mVertexData.numVertices / 4; }
