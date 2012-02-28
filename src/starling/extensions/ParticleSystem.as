@@ -217,8 +217,7 @@ package starling.extensions
                     --mNumParticles;
                     
                     if (mNumParticles == 0)
-                        dispatchEvent(new Event("complete")); // TODO: use "Event.COMPLETE"
-                                              // when it's available in an official release
+                        dispatchEvent(new Event(Event.COMPLETE));
                 }
             }
             
