@@ -49,6 +49,7 @@ package starling.extensions
         private var mIndexBuffer:IndexBuffer3D;
         
         private var mNumParticles:int;
+        private var mMaxCapacity:int;
         private var mEmissionRate:Number; // emitted particles per second
         private var mEmissionTime:Number;
         
@@ -62,7 +63,7 @@ package starling.extensions
         protected var mBlendFactorDestination:String;
         
         public function ParticleSystem(texture:Texture, emissionRate:Number, 
-                                       initialCapacity:int=128,
+                                       initialCapacity:int=128, maxCapacity:int=8192,
                                        blendFactorSource:String=null, blendFactorDest:String=null)
         {
             if (texture == null) throw new ArgumentError("texture must not be null");
@@ -76,6 +77,7 @@ package starling.extensions
             mEmissionTime = 0.0;
             mFrameTime = 0.0;
             mEmitterX = mEmitterY = 0;
+            mMaxCapacity = Math.min(8192, maxCapacity);
             
             mBlendFactorDestination = blendFactorDest || Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA;
             mBlendFactorSource = blendFactorSource ||
@@ -129,9 +131,10 @@ package starling.extensions
         private function raiseCapacity(byAmount:int):void
         {
             var oldCapacity:int = capacity;
-            var newCapacity:int = capacity + byAmount;
+            var newCapacity:int = Math.min(mMaxCapacity, capacity + byAmount);
             var context:Context3D = Starling.context;
-
+            
+            if (oldCapacity == newCapacity) return;
             if (context == null) throw new MissingContextError();
             
             var baseVertexData:VertexData = new VertexData(4);
@@ -233,9 +236,12 @@ package starling.extensions
                     if (mNumParticles == capacity)
                         raiseCapacity(capacity);
                     
-                    particle = mParticles[mNumParticles++] as Particle;
-                    initParticle(particle);
-                    advanceParticle(particle, mFrameTime);
+                    if (mNumParticles < mMaxCapacity)
+                    {
+                        particle = mParticles[mNumParticles++] as Particle;
+                        initParticle(particle);
+                        advanceParticle(particle, mFrameTime);
+                    }
                     
                     mFrameTime -= timeBetweenParticles;
                 }
@@ -352,6 +358,7 @@ package starling.extensions
         }
         
         public function get capacity():int { return mVertexData.numVertices / 4; }
+        public function get maxCapacity():int { return mMaxCapacity; }
         public function get numParticles():int { return mNumParticles; }
         
         public function get emissionRate():Number { return mEmissionRate; }

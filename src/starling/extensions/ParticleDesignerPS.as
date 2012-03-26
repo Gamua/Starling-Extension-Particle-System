@@ -67,7 +67,7 @@ package starling.extensions
             parseConfig(config);
             
             var emissionRate:Number = mMaxNumParticles / mLifespan;
-            super(texture, emissionRate, mMaxNumParticles, 
+            super(texture, emissionRate, mMaxNumParticles, mMaxNumParticles,
                   mBlendFactorSource, mBlendFactorDestination);
             
             mPremultipliedAlpha = false;
@@ -105,8 +105,8 @@ package starling.extensions
             particle.radiusDelta = mMaxRadius / lifespan;
             particle.rotation = mEmitAngle + mEmitAngleVariance * (Math.random() * 2.0 - 1.0); 
             particle.rotationDelta = mRotatePerSecond + mRotatePerSecondVariance * (Math.random() * 2.0 - 1.0); 
-            particle.radialAcceleration = mRadialAcceleration;
-            particle.tangentialAcceleration = mTangentialAcceleration;
+            particle.radialAcceleration = mRadialAcceleration + mRadialAccelerationVariance * (Math.random() * 2.0 - 1.0);
+            particle.tangentialAcceleration = mTangentialAcceleration + mTangentialAccelerationVariance * (Math.random() * 2.0 - 1.0);
             
             var startSize:Number = mStartSize + mStartSizeVariance * (Math.random() * 2.0 - 1.0); 
             var endSize:Number = mEndSize + mEndSizeVariance * (Math.random() * 2.0 - 1.0);
@@ -224,7 +224,9 @@ package starling.extensions
             mSpeed = getFloatValue(config.speed);
             mSpeedVariance = getFloatValue(config.speedVariance);
             mRadialAcceleration = getFloatValue(config.radialAcceleration);
+            mRadialAccelerationVariance = getFloatValue(config.radialAccelVariance);
             mTangentialAcceleration = getFloatValue(config.tangentialAcceleration);
+            mTangentialAccelerationVariance = getFloatValue(config.tangentialAccelVariance);
             mMaxRadius = getFloatValue(config.maxRadius);
             mMaxRadiusVariance = getFloatValue(config.maxRadiusVariance);
             mMinRadius = getFloatValue(config.minRadius);
