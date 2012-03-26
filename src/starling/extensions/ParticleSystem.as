@@ -71,7 +71,7 @@ package starling.extensions
             mTexture = texture;
             mPremultipliedAlpha = texture.premultipliedAlpha;
             mParticles = new Vector.<Particle>(0, false);
-            mVertexData = new VertexData(0, mPremultipliedAlpha);
+            mVertexData = new VertexData(0);
             mIndices = new <uint>[];
             mEmissionRate = emissionRate;
             mEmissionTime = 0.0;
