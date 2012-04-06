@@ -19,9 +19,7 @@ package starling.extensions
     {
         private const EMITTER_TYPE_GRAVITY:int = 0;
         private const EMITTER_TYPE_RADIAL:int  = 1;
-        
-        private var mEmissionRate:Number;
-        
+                
         // emitter configuration                            // .pex element name
         private var mEmitterType:int;                       // emitterType
         private var mEmitterXVariance:Number;               // sourcePositionVariance x
@@ -291,7 +289,8 @@ package starling.extensions
         public function get maxNumParticles():int { return mMaxNumParticles; }
         public function set maxNumParticles(value:int):void 
         { 
-            mMaxNumParticles = value; 
+            maxCapacity = value;
+            mMaxNumParticles = maxCapacity; 
             updateEmissionRate(); 
         }
 

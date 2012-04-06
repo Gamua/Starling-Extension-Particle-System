@@ -134,9 +134,8 @@ package starling.extensions
             var newCapacity:int = Math.min(mMaxCapacity, capacity + byAmount);
             var context:Context3D = Starling.context;
             
-            if (oldCapacity == newCapacity) return;
             if (context == null) throw new MissingContextError();
-            
+
             var baseVertexData:VertexData = new VertexData(4);
             baseVertexData.setTexCoords(0, 0.0, 0.0);
             baseVertexData.setTexCoords(1, 1.0, 0.0);
@@ -233,11 +232,11 @@ package starling.extensions
                 
                 while (mFrameTime > 0)
                 {
-                    if (mNumParticles == capacity)
-                        raiseCapacity(capacity);
-                    
                     if (mNumParticles < mMaxCapacity)
                     {
+                        if (mNumParticles == capacity)
+                            raiseCapacity(capacity);
+                    
                         particle = mParticles[mNumParticles++] as Particle;
                         initParticle(particle);
                         advanceParticle(particle, mFrameTime);
@@ -358,8 +357,10 @@ package starling.extensions
         }
         
         public function get capacity():int { return mVertexData.numVertices / 4; }
-        public function get maxCapacity():int { return mMaxCapacity; }
         public function get numParticles():int { return mNumParticles; }
+        
+        public function get maxCapacity():int { return mMaxCapacity; }
+        public function set maxCapacity(value:int):void { mMaxCapacity = Math.min(8192, value); }
         
         public function get emissionRate():Number { return mEmissionRate; }
         public function set emissionRate(value:Number):void { mEmissionRate = value; }
