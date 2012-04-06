@@ -176,9 +176,10 @@ package starling.extensions
                 mEmissionTime = duration;
         }
         
-        public function stop():void
+        public function stop(clear:Boolean=false):void
         {
             mEmissionTime = 0.0;
+            if (clear) mNumParticles = 0;
         }
         
         public override function getBounds(targetSpace:DisplayObject, 
