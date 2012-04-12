@@ -32,11 +32,12 @@ package starling.extensions
     import starling.textures.Texture;
     import starling.textures.TextureSmoothing;
     import starling.utils.VertexData;
+    import starling.utils.transformCoords;
     
     public class ParticleSystem extends DisplayObject implements IAnimatable
     {
         private static const PROGRAM_MIPMAP:String    = "PS_mm";
-        private static const PROGRAM_NO_MIPMAP:String = "PS_nm"
+        private static const PROGRAM_NO_MIPMAP:String = "PS_nm";
         
         private var mTexture:Texture;
         private var mParticles:Vector.<Particle>;
@@ -53,7 +54,9 @@ package starling.extensions
         private var mEmissionRate:Number; // emitted particles per second
         private var mEmissionTime:Number;
         
-        /** Helper object. */
+        /** Helper objects. */
+        private static var sHelperMatrix:Matrix = new Matrix();
+        private static var sHelperPoint:Point = new Point();
         private static var sRenderAlpha:Vector.<Number> = new <Number>[1.0, 1.0, 1.0, 1.0];
         
         protected var mEmitterX:Number;
@@ -182,12 +185,21 @@ package starling.extensions
             if (clear) mNumParticles = 0;
         }
         
+        /** Returns an empty rectangle at the particle system's position. Calculating the
+         *  actual bounds would be too expensive. */
         public override function getBounds(targetSpace:DisplayObject, 
                                            resultRect:Rectangle=null):Rectangle
         {
-            var matrix:Matrix = getTransformationMatrix(targetSpace);
-            var position:Point = matrix.transformPoint(new Point(x, y));
-            return new Rectangle(position.x, position.y);
+            if (resultRect == null) resultRect = new Rectangle();
+            
+            getTransformationMatrix(targetSpace, sHelperMatrix);
+            transformCoords(sHelperMatrix, 0, 0, sHelperPoint);
+            
+            resultRect.x = sHelperPoint.x;
+            resultRect.y = sHelperPoint.y;
+            resultRect.width = resultRect.height = 0;
+            
+            return resultRect;
         }
         
         public function advanceTime(passedTime:Number):void
