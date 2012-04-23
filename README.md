@@ -48,7 +48,7 @@ The class `ParticleSystem` extends `DisplayObject` and behaves accordingly. You 
 More information
 ----------------
 
-As soon as the Starling Wiki is online, you will find more information online.
+You can find more information in the [Starling Wiki](http://wiki.starling-framework.org/extensions/particlesystem).
 
 [1]: http://www.starling-framework.org
 [2]: http://particledesigner.71squared.com
