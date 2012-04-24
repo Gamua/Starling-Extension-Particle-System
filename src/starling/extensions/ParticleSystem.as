@@ -284,7 +284,10 @@ package starling.extensions
                 yOffset = textureHeight * particle.scale >> 1;
                 
                 for (var j:int=0; j<4; ++j)
-                    mVertexData.setColor(vertexID+j, color, alpha);
+                {
+                    mVertexData.setColor(vertexID+j, color);
+                    mVertexData.setAlpha(vertexID+j, alpha);
+                }
                 
                 mVertexData.setPosition(vertexID,   x - xOffset, y - yOffset);
                 mVertexData.setPosition(vertexID+1, x + xOffset, y - yOffset);
