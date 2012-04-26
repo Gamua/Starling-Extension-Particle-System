@@ -321,14 +321,15 @@ package starling.extensions
             mIndexBuffer.uploadFromVector(mIndices, 0, mNumParticles * 6);
             
             context.setBlendFactors(mBlendFactorSource, mBlendFactorDestination);
+            context.setTextureAt(0, mTexture.base);
             
             context.setProgram(Starling.current.getProgram(program));
-            context.setTextureAt(0, mTexture.base);
+            context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 0, support.mvpMatrix, true);
+            context.setProgramConstantsFromVector(Context3DProgramType.VERTEX, 4, sRenderAlpha, 1);
             context.setVertexBufferAt(0, mVertexBuffer, VertexData.POSITION_OFFSET, Context3DVertexBufferFormat.FLOAT_3); 
             context.setVertexBufferAt(1, mVertexBuffer, VertexData.COLOR_OFFSET,    Context3DVertexBufferFormat.FLOAT_4);
             context.setVertexBufferAt(2, mVertexBuffer, VertexData.TEXCOORD_OFFSET, Context3DVertexBufferFormat.FLOAT_2);
-            context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 0, support.mvpMatrix, true);            
-            context.setProgramConstantsFromVector(Context3DProgramType.FRAGMENT, 0, sRenderAlpha, 1);
+            
             context.drawTriangles(mIndexBuffer, 0, mNumParticles * 2);
             
             context.setTextureAt(0, null);
@@ -353,13 +354,12 @@ package starling.extensions
                 
                 var vertexProgramCode:String =
                     "m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clipspace
-                    "mov v0, va1      \n" + // pass color to fragment program
+                    "mul v0, va1, vc4 \n" + // multiply color with alpha and pass to fragment program
                     "mov v1, va2      \n";  // pass texture coordinates to fragment program
                 
                 var fragmentProgramCode:String =
                     "tex ft1, v1, fs0 <" + textureOptions + "> \n" + // sample texture 0
-                    "mul ft2, ft1, v0                          \n" + // multiply color with texel color
-                    "mul oc, ft2, fc0                          \n";   // multiply color with alpha
+                    "mul oc, ft1, v0";                               // multiply color with texel color
                 
                 var vertexProgramAssembler:AGALMiniAssembler = new AGALMiniAssembler();
                 vertexProgramAssembler.assemble(Context3DProgramType.VERTEX, vertexProgramCode);
