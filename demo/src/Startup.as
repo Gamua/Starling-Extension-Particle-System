@@ -18,6 +18,7 @@ package
             
             mStarling = new Starling(Demo, stage);
             mStarling.enableErrorChecking = false;
+            mStarling.showStats = true;
             mStarling.start();
         }
     }
