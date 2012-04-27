@@ -267,6 +267,7 @@ package starling.extensions
             var vertexID:int = 0;
             var color:uint;
             var alpha:Number;
+            var rotation:Number;
             var x:Number, y:Number;
             var xOffset:Number, yOffset:Number;
             var textureWidth:Number = mTexture.width;
@@ -278,6 +279,7 @@ package starling.extensions
                 particle = mParticles[i] as Particle;
                 color = particle.color;
                 alpha = particle.alpha;
+                rotation = particle.rotation;
                 x = particle.x;
                 y = particle.y;
                 xOffset = textureWidth  * particle.scale >> 1;
@@ -289,12 +291,28 @@ package starling.extensions
                     mVertexData.setAlpha(vertexID+j, alpha);
                 }
                 
-                mVertexData.setPosition(vertexID,   x - xOffset, y - yOffset);
-                mVertexData.setPosition(vertexID+1, x + xOffset, y - yOffset);
-                mVertexData.setPosition(vertexID+2, x - xOffset, y + yOffset);
-                mVertexData.setPosition(vertexID+3, x + xOffset, y + yOffset);
-                
-                // todo: add rotation
+                if (rotation)
+                {
+                    var cos:Number  = Math.cos(rotation);
+                    var sin:Number  = Math.sin(rotation);
+                    var cosX:Number = cos * xOffset;
+                    var cosY:Number = cos * yOffset;
+                    var sinX:Number = sin * xOffset;
+                    var sinY:Number = sin * yOffset;
+                    
+                    mVertexData.setPosition(vertexID,   x - cosX + sinY, y - sinX - cosY);
+                    mVertexData.setPosition(vertexID+1, x + cosX + sinY, y + sinX - cosY);
+                    mVertexData.setPosition(vertexID+2, x - cosX - sinY, y - sinX + cosY);
+                    mVertexData.setPosition(vertexID+3, x + cosX - sinY, y + sinX + cosY);
+                }
+                else 
+                {
+                    // optimization for rotation == 0
+                    mVertexData.setPosition(vertexID,   x - xOffset, y - yOffset);
+                    mVertexData.setPosition(vertexID+1, x + xOffset, y - yOffset);
+                    mVertexData.setPosition(vertexID+2, x - xOffset, y + yOffset);
+                    mVertexData.setPosition(vertexID+3, x + xOffset, y + yOffset);
+                }
             }
         }
         

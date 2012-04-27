@@ -19,7 +19,7 @@ package starling.extensions
     {
         private const EMITTER_TYPE_GRAVITY:int = 0;
         private const EMITTER_TYPE_RADIAL:int  = 1;
-                
+        
         // emitter configuration                            // .pex element name
         private var mEmitterType:int;                       // emitterType
         private var mEmitterXVariance:Number;               // sourcePositionVariance x
@@ -32,10 +32,13 @@ package starling.extensions
         private var mStartSize:Number;                      // startParticleSize
         private var mStartSizeVariance:Number;              // startParticleSizeVariance
         private var mEndSize:Number;                        // finishParticleSize
-        private var mEndSizeVariance:Number;                // finishParticleSize
+        private var mEndSizeVariance:Number;                // finishParticleSizeVariance
         private var mEmitAngle:Number;                      // angle
         private var mEmitAngleVariance:Number;              // angleVariance
-        // [rotation not yet supported!]
+        private var mStartRotation:Number;                  // rotationStart
+        private var mStartRotationVariance:Number;          // rotationStartVariance
+        private var mEndRotation:Number;                    // rotationEnd
+        private var mEndRotationVariance:Number;            // rotationEndVariance
         
         // gravity configuration
         private var mSpeed:Number;                          // speed
@@ -99,10 +102,10 @@ package starling.extensions
             particle.velocityX = speed * Math.cos(angle);
             particle.velocityY = speed * Math.sin(angle);
             
-            particle.radius = mMaxRadius + mMaxRadiusVariance * (Math.random() * 2.0 - 1.0);
-            particle.radiusDelta = mMaxRadius / lifespan;
-            particle.rotation = mEmitAngle + mEmitAngleVariance * (Math.random() * 2.0 - 1.0); 
-            particle.rotationDelta = mRotatePerSecond + mRotatePerSecondVariance * (Math.random() * 2.0 - 1.0); 
+            particle.emitRadius = mMaxRadius + mMaxRadiusVariance * (Math.random() * 2.0 - 1.0);
+            particle.emitRadiusDelta = mMaxRadius / lifespan;
+            particle.emitRotation = mEmitAngle + mEmitAngleVariance * (Math.random() * 2.0 - 1.0); 
+            particle.emitRotationDelta = mRotatePerSecond + mRotatePerSecondVariance * (Math.random() * 2.0 - 1.0); 
             particle.radialAcceleration = mRadialAcceleration + mRadialAccelerationVariance * (Math.random() * 2.0 - 1.0);
             particle.tangentialAcceleration = mTangentialAcceleration + mTangentialAccelerationVariance * (Math.random() * 2.0 - 1.0);
             
@@ -142,6 +145,14 @@ package starling.extensions
             colorDelta.green = (endColorGreen - startColor.green) / lifespan;
             colorDelta.blue  = (endColorBlue  - startColor.blue)  / lifespan;
             colorDelta.alpha = (endColorAlpha - startColor.alpha) / lifespan;
+            
+            // rotation
+            
+            var startRotation:Number = mStartRotation + mStartRotationVariance * (Math.random() * 2.0 - 1.0); 
+            var endRotation:Number   = mEndRotation   + mEndRotationVariance   * (Math.random() * 2.0 - 1.0);
+            
+            particle.rotation = startRotation;
+            particle.rotationDelta = (endRotation - startRotation) / lifespan;
         }
         
         protected override function advanceParticle(aParticle:Particle, passedTime:Number):void
@@ -154,12 +165,12 @@ package starling.extensions
             
             if (mEmitterType == EMITTER_TYPE_RADIAL)
             {
-                particle.rotation += particle.rotationDelta * passedTime;
-                particle.radius   -= particle.radiusDelta   * passedTime;
-                particle.x = mEmitterX - Math.cos(particle.rotation) * particle.radius;
-                particle.y = mEmitterY - Math.sin(particle.rotation) * particle.radius;
+                particle.emitRotation += particle.emitRotationDelta * passedTime;
+                particle.emitRadius   -= particle.emitRadiusDelta   * passedTime;
+                particle.x = mEmitterX - Math.cos(particle.emitRotation) * particle.emitRadius;
+                particle.y = mEmitterY - Math.sin(particle.emitRotation) * particle.emitRadius;
                 
-                if (particle.radius < mMinRadius)
+                if (particle.emitRadius < mMinRadius)
                     particle.currentTime = particle.totalTime;
             }
             else
@@ -188,6 +199,7 @@ package starling.extensions
             }
             
             particle.scale += particle.scaleDelta * passedTime;
+            particle.rotation += particle.rotationDelta * passedTime;
             
             particle.colorArgb.red   += particle.colorArgbDelta.red   * passedTime;
             particle.colorArgb.green += particle.colorArgbDelta.green * passedTime;
@@ -219,6 +231,10 @@ package starling.extensions
             mEndSizeVariance = getFloatValue(config.FinishParticleSizeVariance);
             mEmitAngle = deg2rad(getFloatValue(config.angle));
             mEmitAngleVariance = deg2rad(getFloatValue(config.angleVariance));
+            mStartRotation = deg2rad(getFloatValue(config.rotationStart));
+            mStartRotationVariance = deg2rad(getFloatValue(config.rotationStartVariance));
+            mEndRotation = deg2rad(getFloatValue(config.rotationEnd));
+            mEndRotationVariance = deg2rad(getFloatValue(config.rotationEndVariance));
             mSpeed = getFloatValue(config.speed);
             mSpeedVariance = getFloatValue(config.speedVariance);
             mRadialAcceleration = getFloatValue(config.radialAcceleration);
@@ -322,6 +338,18 @@ package starling.extensions
         public function get emitAngleVariance():Number { return mEmitAngleVariance; }
         public function set emitAngleVariance(value:Number):void { mEmitAngleVariance = value; }
 
+        public function get startRotation():Number { return mStartRotation; } 
+        public function set startRotation(value:Number):void { mStartRotation = value; }
+        
+        public function get startRotationVariance():Number { return mStartRotationVariance; } 
+        public function set startRotationVariance(value:Number):void { mStartRotationVariance = value; }
+        
+        public function get endRotation():Number { return mEndRotation; } 
+        public function set endRotation(value:Number):void { mEndRotation = value; }
+        
+        public function get endRotationVariance():Number { return mEndRotationVariance; } 
+        public function set endRotationVariance(value:Number):void { mEndRotationVariance = value; }
+        
         public function get speed():Number { return mSpeed; }
         public function set speed(value:Number):void { mSpeed = value; }
 
@@ -386,7 +414,8 @@ class PDParticle extends starling.extensions.Particle
     public var velocityX:Number, velocityY:Number;
     public var radialAcceleration:Number;
     public var tangentialAcceleration:Number;
-    public var radius:Number, radiusDelta:Number;
+    public var emitRadius:Number, emitRadiusDelta:Number;
+    public var emitRotation:Number, emitRotationDelta:Number;
     public var rotationDelta:Number;
     public var scaleDelta:Number;
     
