@@ -15,7 +15,7 @@ package starling.extensions
     import starling.textures.Texture;
     import starling.utils.deg2rad;
     
-    public class ParticleDesignerPS extends ParticleSystem
+    public class PDParticleSystem extends ParticleSystem
     {
         private const EMITTER_TYPE_GRAVITY:int = 0;
         private const EMITTER_TYPE_RADIAL:int  = 1;
@@ -63,7 +63,7 @@ package starling.extensions
         private var mEndColor:ColorArgb;                    // finishColor
         private var mEndColorVariance:ColorArgb;            // finishColorVariance
         
-        public function ParticleDesignerPS(config:XML, texture:Texture)
+        public function PDParticleSystem(config:XML, texture:Texture)
         {
             parseConfig(config);
             

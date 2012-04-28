@@ -6,7 +6,7 @@ package
     import starling.events.Touch;
     import starling.events.TouchEvent;
     import starling.events.TouchPhase;
-    import starling.extensions.ParticleDesignerPS;
+    import starling.extensions.PDParticleSystem;
     import starling.extensions.ParticleSystem;
     import starling.textures.Texture;
     
@@ -52,7 +52,7 @@ package
             var psConfig:XML = XML(new DrugsConfig());
             var psTexture:Texture = Texture.fromBitmap(new DrugsParticle());
             
-            mParticleSystem = new ParticleDesignerPS(psConfig, psTexture);
+            mParticleSystem = new PDParticleSystem(psConfig, psTexture);
             mParticleSystem.emitterX = 320;
             mParticleSystem.emitterY = 240;
             mParticleSystem.start();
