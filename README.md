@@ -7,7 +7,7 @@ The extension consists of three classes:
 
 1. `Particle`: stores the state of a particle, like its position and color
 2. `ParticleSystem`: the base class for particle systems. Implements a very simple particle movement. To create a custom particle system, extend this class and override the methods `createParticle`, `initParticle`, and `advanceParticle`.
-3. `ParticleDesignerPS`: a particle system subclass that can display particle systems created with the  [Particle Designer][2] from 71squared.
+3. `PDParticleSystem`: a particle system subclass that can display particle systems created with the  [Particle Designer][2] from 71squared.
 
 Installation
 ------------
@@ -31,7 +31,7 @@ Sample Code
 The class `ParticleSystem` extends `DisplayObject` and behaves accordingly. You can add it as a child to the stage or any other container. As usual, you have to add it to a juggler (or call its `advanceTime` method once per frame) to animate it.
 
     // create particle system
-    mParticleSystem = new ParticleDesignerPS(psConfig, psTexture);
+    mParticleSystem = new PDParticleSystem(psConfig, psTexture);
     mParticleSystem.emitterX = 320;
     mParticleSystem.emitterY = 240;
     
