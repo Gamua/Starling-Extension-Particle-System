@@ -12,7 +12,12 @@ The extension consists of three classes:
 Installation
 ------------
 
-In the `src`-directory, you will find the three classes described above. You can either copy them directly to your Starling-powered application, or you add the source path to your FlexBuilder project.
+Which version to download depends on the Starling version you are using:
+
+* If you work with a release version of Starling, download the Particle System with the equivalent tag (Starling 1.1 -> Particle System 1.1).
+* If you work with the latest development version of Starling, download the head revision of the Particle System. 
+
+After downloading, you will find the three classes described above in the `src`-directory. You can either copy them directly to your Starling-powered application, or you add the source path to your FlexBuilder project.
 
 Demo-Project
 ------------
