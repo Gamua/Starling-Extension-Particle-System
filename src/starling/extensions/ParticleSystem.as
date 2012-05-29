@@ -26,13 +26,11 @@ package starling.extensions
     import starling.core.RenderSupport;
     import starling.core.Starling;
     import starling.display.DisplayObject;
-    import starling.display.Image;
     import starling.errors.MissingContextError;
     import starling.events.Event;
     import starling.textures.Texture;
-    import starling.textures.TextureSmoothing;
+    import starling.utils.MatrixUtil;
     import starling.utils.VertexData;
-    import starling.utils.transformCoords;
     
     public class ParticleSystem extends DisplayObject implements IAnimatable
     {
@@ -193,7 +191,7 @@ package starling.extensions
             if (resultRect == null) resultRect = new Rectangle();
             
             getTransformationMatrix(targetSpace, sHelperMatrix);
-            transformCoords(sHelperMatrix, 0, 0, sHelperPoint);
+            MatrixUtil.transformCoords(sHelperMatrix, 0, 0, sHelperPoint);
             
             resultRect.x = sHelperPoint.x;
             resultRect.y = sHelperPoint.y;
