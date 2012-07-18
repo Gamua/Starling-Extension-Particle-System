@@ -322,6 +322,11 @@ package starling.extensions
             // it causes all previously batched quads/images to render.
             support.finishQuadBatch();
             
+            // make this call to keep the statistics display in sync.
+            // to play it safe, it's done in a backwards-compatible way here.
+            if (support.hasOwnProperty("raiseDrawCount"))
+                support.raiseDrawCount();
+            
             alpha *= this.alpha;
             
             var program:String = mTexture.mipMapping ? PROGRAM_MIPMAP : PROGRAM_NO_MIPMAP;
