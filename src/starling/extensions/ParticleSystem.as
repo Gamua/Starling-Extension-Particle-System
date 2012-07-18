@@ -202,8 +202,6 @@ package starling.extensions
         
         public function advanceTime(passedTime:Number):void
         {
-            passedTime = Math.min(0.2, passedTime);
-            
             var particleIndex:int = 0;
             var particle:Particle;
             
