@@ -220,8 +220,8 @@ package starling.extensions
                 {
                     if (particleIndex != mNumParticles - 1)
                     {
-                        var nextParticle:Particle = mParticles[mNumParticles - 1] as Particle;
-                        mParticles[mNumParticles-1] = particle;
+                        var nextParticle:Particle = mParticles[int(mNumParticles-1)] as Particle;
+                        mParticles[int(mNumParticles-1)] = particle;
                         mParticles[particleIndex] = nextParticle;
                     }
                     
@@ -246,7 +246,7 @@ package starling.extensions
                         if (mNumParticles == capacity)
                             raiseCapacity(capacity);
                     
-                        particle = mParticles[mNumParticles++] as Particle;
+                        particle = mParticles[int(mNumParticles++)] as Particle;
                         initParticle(particle);
                         advanceParticle(particle, mFrameTime);
                     }
