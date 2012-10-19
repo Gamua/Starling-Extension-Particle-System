@@ -150,10 +150,17 @@ package starling.extensions
             for (var i:int=oldCapacity; i<newCapacity; ++i)  
             {
                 var numVertices:int = i * 4;
-                mParticles.push(createParticle());
+                var numIndices:int  = i * 6;
+                
+                mParticles[i] = createParticle();
                 mVertexData.append(baseVertexData);
-                mIndices.push(numVertices,     numVertices + 1, numVertices + 2, 
-                              numVertices + 1, numVertices + 3, numVertices + 2);
+                
+                mIndices[    numIndices   ] = numVertices;
+                mIndices[int(numIndices+1)] = numVertices + 1;
+                mIndices[int(numIndices+2)] = numVertices + 2;
+                mIndices[int(numIndices+3)] = numVertices + 1;
+                mIndices[int(numIndices+4)] = numVertices + 3;
+                mIndices[int(numIndices+5)] = numVertices + 2;
             }
             
             mParticles.fixed = true;
