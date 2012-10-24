@@ -420,5 +420,6 @@ package starling.extensions
         public function set blendFactorDestination(value:String):void { mBlendFactorDestination = value; }
         
         public function get texture():Texture { return mTexture; }
+        public function set texture(value:Texture):void { mTexture = value; }
     }
 }
