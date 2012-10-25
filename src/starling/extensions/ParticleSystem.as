@@ -32,6 +32,9 @@ package starling.extensions
     import starling.utils.MatrixUtil;
     import starling.utils.VertexData;
     
+    /** Dispatched when emission of particles is finished. */
+    [Event(name="complete", type="starling.events.Event")]
+    
     public class ParticleSystem extends DisplayObject implements IAnimatable
     {
         private static const PROGRAM_MIPMAP:String    = "PS_mm";
