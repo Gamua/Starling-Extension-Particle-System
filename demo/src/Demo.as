@@ -1,8 +1,11 @@
 package
 {
+    import flash.ui.Keyboard;
+    
     import starling.core.Starling;
     import starling.display.Sprite;
     import starling.events.Event;
+    import starling.events.KeyboardEvent;
     import starling.events.Touch;
     import starling.events.TouchEvent;
     import starling.events.TouchPhase;
@@ -42,38 +45,74 @@ package
         
         // member variables
         
+        private var mParticleSystems:Vector.<ParticleSystem>;
         private var mParticleSystem:ParticleSystem;
         
         public function Demo()
         {
-            // create particle system
-            // (change first 2 lines to try out other configurations)
+            var drugsConfig:XML = XML(new DrugsConfig());
+            var drugsTexture:Texture = Texture.fromBitmap(new DrugsParticle());
             
-            var psConfig:XML = XML(new DrugsConfig());
-            var psTexture:Texture = Texture.fromBitmap(new DrugsParticle());
+            var fireConfig:XML = XML(new FireConfig());
+            var fireTexture:Texture = Texture.fromBitmap(new FireParticle());
             
-            mParticleSystem = new PDParticleSystem(psConfig, psTexture);
-            mParticleSystem.emitterX = 320;
-            mParticleSystem.emitterY = 240;
-            mParticleSystem.start();
-            addChild(mParticleSystem);
+            var sunConfig:XML = XML(new SunConfig());
+            var sunTexture:Texture = Texture.fromBitmap(new SunParticle());
             
-            // add event handlers for touch and FPS
+            var jellyConfig:XML = XML(new JellyfishConfig());
+            var jellyTexture:Texture = Texture.fromBitmap(new JellyfishParticle());
+            
+            mParticleSystems = new <ParticleSystem>[
+                new PDParticleSystem(drugsConfig, drugsTexture),
+                new PDParticleSystem(fireConfig, fireTexture),
+                new PDParticleSystem(sunConfig, sunTexture),
+                new PDParticleSystem(jellyConfig, jellyTexture)
+            ];
+            
+            // add event handlers for touch and keyboard
             
             addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
             addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
         }
         
+        private function startNextParticleSystem():void
+        {
+            if (mParticleSystem)
+            {
+                mParticleSystem.stop();
+                mParticleSystem.removeFromParent();
+                Starling.juggler.remove(mParticleSystem);
+            }
+            
+            mParticleSystem = mParticleSystems.shift();
+            mParticleSystems.push(mParticleSystem);
+
+            mParticleSystem.emitterX = 320;
+            mParticleSystem.emitterY = 240;
+            mParticleSystem.start();
+            
+            addChild(mParticleSystem);
+            Starling.juggler.add(mParticleSystem);
+        }
+        
         private function onAddedToStage(event:Event):void
         {
+            stage.addEventListener(KeyboardEvent.KEY_DOWN, onKey);
             stage.addEventListener(TouchEvent.TOUCH, onTouch);
-            Starling.juggler.add(mParticleSystem);
+            
+            startNextParticleSystem();
         }
         
         private function onRemovedFromStage(event:Event):void
         {
+            stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKey);
             stage.removeEventListener(TouchEvent.TOUCH, onTouch);
-            Starling.juggler.remove(mParticleSystem);
+        }
+        
+        private function onKey(event:Event, keyCode:uint):void
+        {
+            if (keyCode == Keyboard.SPACE)
+                startNextParticleSystem();
         }
         
         private function onTouch(event:TouchEvent):void

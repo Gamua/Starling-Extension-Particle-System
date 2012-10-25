@@ -22,13 +22,10 @@ After downloading, you will find the three classes described above in the `src`-
 Demo-Project
 ------------
 
-The `demo`-directory contains a sample project. To compile it, add a reference to the Starling library and add the source directory that contain the particle system classes.
+The `demo`-directory contains a sample project. To compile it, add a reference to the Starling library and add the source directory that contains the particle system classes.
 
 The project contains 4 sample configurations. Switch between configurations in `Demo.as` by 
-changing the code in the constructor:
-
-    var psConfig:XML = XML(new FireConfig());
-    var psTexture:Texture = Texture.fromBitmap(new FireParticle());
+hitting the space bar.
 
 Sample Code
 -----------

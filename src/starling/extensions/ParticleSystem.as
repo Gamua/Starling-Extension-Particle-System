@@ -178,16 +178,24 @@ package starling.extensions
             mIndexBuffer.uploadFromVector(mIndices, 0, newCapacity * 6);
         }
         
+        /** Starts the sysytem for a certain time. @default infinite time */
         public function start(duration:Number=Number.MAX_VALUE):void
         {
             if (mEmissionRate != 0)                
                 mEmissionTime = duration;
         }
         
-        public function stop(clear:Boolean=false):void
+        /** Stops the system and removes all existing particles. */
+        public function stop():void
         {
             mEmissionTime = 0.0;
-            if (clear) mNumParticles = 0;
+            mNumParticles = 0;
+        }
+        
+        /** Pauses the system; when you 'start' again, it will continue from the old state. */
+        public function pause():void
+        {
+            mEmissionTime = 0.0;
         }
         
         /** Returns an empty rectangle at the particle system's position. Calculating the
