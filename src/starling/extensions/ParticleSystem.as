@@ -222,6 +222,7 @@ package starling.extensions
         {
             var particleIndex:int = 0;
             var particle:Particle;
+            var i:int;
             
             // advance existing particles
             
@@ -238,9 +239,12 @@ package starling.extensions
                 {
                     if (particleIndex != mNumParticles - 1)
                     {
-                        var nextParticle:Particle = mParticles[int(mNumParticles-1)] as Particle;
+                        var len:int = mNumParticles - 1;
+                        for (i=particleIndex; i<len; ++i)
+                        {
+                            mParticles[i] = mParticles[i+1];
+                        }
                         mParticles[int(mNumParticles-1)] = particle;
-                        mParticles[particleIndex] = nextParticle;
                     }
                     
                     --mNumParticles;
@@ -287,7 +291,7 @@ package starling.extensions
             var textureWidth:Number = mTexture.width;
             var textureHeight:Number = mTexture.height;
             
-            for (var i:int=0; i<mNumParticles; ++i)
+            for (i=0; i<mNumParticles; ++i)
             {
                 vertexID = i << 2;
                 particle = mParticles[i] as Particle;
