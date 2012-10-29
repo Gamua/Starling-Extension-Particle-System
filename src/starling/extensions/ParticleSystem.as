@@ -37,36 +37,36 @@ package starling.extensions
     
     public class ParticleSystem extends DisplayObject implements IAnimatable
     {
-        private static const PROGRAM_MIPMAP:String    = "PS_mm";
-        private static const PROGRAM_NO_MIPMAP:String = "PS_nm";
+        protected static const PROGRAM_MIPMAP:String    = "PS_mm";
+        protected static const PROGRAM_NO_MIPMAP:String = "PS_nm";
         
-        private var mTexture:Texture;
-        private var mParticles:Vector.<Particle>;
-        private var mFrameTime:Number;
+        protected var mTexture:Texture;
+        protected var mParticles:Vector.<Particle>;
+        protected var mFrameTime:Number;
         
-        private var mVertexData:VertexData;
-        private var mVertexBuffer:VertexBuffer3D;
+        protected var mVertexData:VertexData;
+        protected var mVertexBuffer:VertexBuffer3D;
         
-        private var mIndices:Vector.<uint>;
-        private var mIndexBuffer:IndexBuffer3D;
+        protected var mIndices:Vector.<uint>;
+        protected var mIndexBuffer:IndexBuffer3D;
         
-        private var mNumParticles:int;
-        private var mMaxCapacity:int;
-        private var mEmissionRate:Number; // emitted particles per second
-        private var mEmissionTime:Number;
+        protected var mNumParticles:int;
+        protected var mMaxCapacity:int;
+        protected var mEmissionRate:Number; // emitted particles per second
+        protected var mEmissionTime:Number;
         
         /** Helper objects. */
-        private static var sHelperMatrix:Matrix = new Matrix();
-        private static var sHelperPoint:Point = new Point();
-        private static var sRenderAlpha:Vector.<Number> = new <Number>[1.0, 1.0, 1.0, 1.0];
+        protected static var sHelperMatrix:Matrix = new Matrix();
+        protected static var sHelperPoint:Point = new Point();
+        protected static var sRenderAlpha:Vector.<Number> = new <Number>[1.0, 1.0, 1.0, 1.0];
         
         protected var mEmitterX:Number;
         protected var mEmitterY:Number;
         protected var mPremultipliedAlpha:Boolean;
-        protected var mBlendFactorSource:String;     
+        protected var mBlendFactorSource:String;
         protected var mBlendFactorDestination:String;
         
-        public function ParticleSystem(texture:Texture, emissionRate:Number, 
+        public function ParticleSystem(texture:Texture, emissionRate:Number,
                                        initialCapacity:int=128, maxCapacity:int=8192,
                                        blendFactorSource:String=null, blendFactorDest:String=null)
         {
@@ -128,12 +128,14 @@ package starling.extensions
         {
             particle.y += passedTime * 250;
             particle.alpha = 1.0 - particle.currentTime / particle.totalTime;
-            particle.scale = 1.0 - particle.alpha; 
+            particle.scale = 1.0 - particle.alpha;
             particle.currentTime += passedTime;
         }
         
-        private function raiseCapacity(byAmount:int):void
+        protected function raiseCapacity(byAmount:int):void
         {
+            if (byAmount == 0) return;
+
             var oldCapacity:int = capacity;
             var newCapacity:int = Math.min(mMaxCapacity, capacity + byAmount);
             var context:Context3D = Starling.context;
@@ -150,7 +152,7 @@ package starling.extensions
             mParticles.fixed = false;
             mIndices.fixed = false;
             
-            for (var i:int=oldCapacity; i<newCapacity; ++i)  
+            for (var i:int=oldCapacity; i<newCapacity; ++i)
             {
                 var numVertices:int = i * 4;
                 var numIndices:int  = i * 6;
@@ -181,49 +183,10 @@ package starling.extensions
             mIndexBuffer.uploadFromVector(mIndices, 0, newCapacity * 6);
         }
         
-        /** Starts the sysytem for a certain time. @default infinite time */
-        public function start(duration:Number=Number.MAX_VALUE):void
-        {
-            if (mEmissionRate != 0)                
-                mEmissionTime = duration;
-        }
-        
-        /** Stops the system and removes all existing particles. */
-        public function stop():void
-        {
-            mEmissionTime = 0.0;
-            mNumParticles = 0;
-        }
-        
-        /** Pauses the system; when you 'start' again, it will continue from the old state. */
-        public function pause():void
-        {
-            mEmissionTime = 0.0;
-        }
-        
-        /** Returns an empty rectangle at the particle system's position. Calculating the
-         *  actual bounds would be too expensive. */
-        public override function getBounds(targetSpace:DisplayObject, 
-                                           resultRect:Rectangle=null):Rectangle
-        {
-            if (resultRect == null) resultRect = new Rectangle();
-            
-            getTransformationMatrix(targetSpace, sHelperMatrix);
-            MatrixUtil.transformCoords(sHelperMatrix, 0, 0, sHelperPoint);
-            
-            resultRect.x = sHelperPoint.x;
-            resultRect.y = sHelperPoint.y;
-            resultRect.width = resultRect.height = 0;
-            
-            return resultRect;
-        }
-        
-        public function advanceTime(passedTime:Number):void
+        protected function advanceExistingParticles(passedTime:Number):void
         {
             var particleIndex:int = 0;
             var particle:Particle;
-            
-            // advance existing particles
             
             while (particleIndex < mNumParticles)
             {
@@ -249,8 +212,11 @@ package starling.extensions
                         dispatchEvent(new Event(Event.COMPLETE));
                 }
             }
-            
-            // create and advance new particles
+        }
+        
+        protected function createAndAdvanceNewParticles(passedTime:Number):void
+        {
+            var particle:Particle;
             
             if (mEmissionTime > 0)
             {
@@ -263,7 +229,7 @@ package starling.extensions
                     {
                         if (mNumParticles == capacity)
                             raiseCapacity(capacity);
-                    
+                        
                         particle = mParticles[int(mNumParticles++)] as Particle;
                         initParticle(particle);
                         advanceParticle(particle, mFrameTime);
@@ -275,9 +241,11 @@ package starling.extensions
                 if (mEmissionTime != Number.MAX_VALUE)
                     mEmissionTime = Math.max(0.0, mEmissionTime - passedTime);
             }
-            
-            // update vertex data
-            
+        }
+        
+        protected function updateVertexData(passedTime:Number):void
+        {
+            var particle:Particle;
             var vertexID:int = 0;
             var color:uint;
             var alpha:Number;
@@ -319,7 +287,7 @@ package starling.extensions
                     mVertexData.setPosition(vertexID+2, x - cosX - sinY, y - sinX + cosY);
                     mVertexData.setPosition(vertexID+3, x + cosX - sinY, y + sinX + cosY);
                 }
-                else 
+                else
                 {
                     // optimization for rotation == 0
                     mVertexData.setPosition(vertexID,   x - xOffset, y - yOffset);
@@ -328,6 +296,50 @@ package starling.extensions
                     mVertexData.setPosition(vertexID+3, x + xOffset, y + yOffset);
                 }
             }
+        }
+        
+        /** Starts the sysytem for a certain time. @default infinite time */
+        public function start(duration:Number=Number.MAX_VALUE):void
+        {
+            if (mEmissionRate != 0)
+                mEmissionTime = duration;
+        }
+        
+        /** Stops the system and removes all existing particles. */
+        public function stop():void
+        {
+            mEmissionTime = 0.0;
+            mNumParticles = 0;
+        }
+        
+        /** Pauses the system; when you 'start' again, it will continue from the old state. */
+        public function pause():void
+        {
+            mEmissionTime = 0.0;
+        }
+        
+        /** Returns an empty rectangle at the particle system's position. Calculating the
+         *  actual bounds would be too expensive. */
+        public override function getBounds(targetSpace:DisplayObject,
+                                           resultRect:Rectangle=null):Rectangle
+        {
+            if (resultRect == null) resultRect = new Rectangle();
+            
+            getTransformationMatrix(targetSpace, sHelperMatrix);
+            MatrixUtil.transformCoords(sHelperMatrix, 0, 0, sHelperPoint);
+            
+            resultRect.x = sHelperPoint.x;
+            resultRect.y = sHelperPoint.y;
+            resultRect.width = resultRect.height = 0;
+            
+            return resultRect;
+        }
+        
+        public function advanceTime(passedTime:Number):void
+        {
+            advanceExistingParticles(passedTime);
+            createAndAdvanceNewParticles(passedTime);
+            updateVertexData(passedTime);
         }
         
         public override function render(support:RenderSupport, alpha:Number):void
@@ -363,7 +375,7 @@ package starling.extensions
             context.setProgram(Starling.current.getProgram(program));
             context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 0, support.mvpMatrix3D, true);
             context.setProgramConstantsFromVector(Context3DProgramType.VERTEX, 4, sRenderAlpha, 1);
-            context.setVertexBufferAt(0, mVertexBuffer, VertexData.POSITION_OFFSET, Context3DVertexBufferFormat.FLOAT_2); 
+            context.setVertexBufferAt(0, mVertexBuffer, VertexData.POSITION_OFFSET, Context3DVertexBufferFormat.FLOAT_2);
             context.setVertexBufferAt(1, mVertexBuffer, VertexData.COLOR_OFFSET,    Context3DVertexBufferFormat.FLOAT_4);
             context.setVertexBufferAt(2, mVertexBuffer, VertexData.TEXCOORD_OFFSET, Context3DVertexBufferFormat.FLOAT_2);
             
@@ -383,11 +395,11 @@ package starling.extensions
             if (target.hasProgram(PROGRAM_MIPMAP)) return; // already registered
             
             for each (var mipmap:Boolean in [true, false])
-            {            
+            {
                 // create vertex and fragment programs - from assembly.
                 
                 var programName:String = mipmap ? PROGRAM_MIPMAP : PROGRAM_NO_MIPMAP;
-                var textureOptions:String = "2d, clamp, linear, " + (mipmap ? "mipnearest" : "mipnone"); 
+                var textureOptions:String = "2d, clamp, linear, " + (mipmap ? "mipnearest" : "mipnone");
                 
                 var vertexProgramCode:String =
                     "m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clipspace
