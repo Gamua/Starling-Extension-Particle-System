@@ -15,8 +15,10 @@ package starling.extensions
     import flash.display3D.Context3D;
     import flash.display3D.Context3DBlendFactor;
     import flash.display3D.Context3DProgramType;
+    import flash.display3D.Context3DTextureFormat;
     import flash.display3D.Context3DVertexBufferFormat;
     import flash.display3D.IndexBuffer3D;
+    import flash.display3D.Program3D;
     import flash.display3D.VertexBuffer3D;
     import flash.geom.Matrix;
     import flash.geom.Point;
@@ -37,16 +39,13 @@ package starling.extensions
     
     public class ParticleSystem extends DisplayObject implements IAnimatable
     {
-        private static const PROGRAM_MIPMAP:String    = "PS_mm";
-        private static const PROGRAM_NO_MIPMAP:String = "PS_nm";
-        
         private var mTexture:Texture;
         private var mParticles:Vector.<Particle>;
         private var mFrameTime:Number;
         
+        private var mProgram:Program3D;
         private var mVertexData:VertexData;
         private var mVertexBuffer:VertexBuffer3D;
-        
         private var mIndices:Vector.<uint>;
         private var mIndexBuffer:IndexBuffer3D;
         
@@ -87,26 +86,28 @@ package starling.extensions
             mBlendFactorSource = blendFactorSource ||
                 (mPremultipliedAlpha ? Context3DBlendFactor.ONE : Context3DBlendFactor.SOURCE_ALPHA);
             
-            registerPrograms();
+            createProgram();
             raiseCapacity(initialCapacity);
             
             // handle a lost device context
-            Starling.current.addEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
+            Starling.current.stage3D.addEventListener(Event.CONTEXT3D_CREATE, 
+                onContextCreated, false, 0, true);
         }
         
         public override function dispose():void
         {
+            Starling.current.stage3D.removeEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
+            
             if (mVertexBuffer) mVertexBuffer.dispose();
             if (mIndexBuffer)  mIndexBuffer.dispose();
-            
-            Starling.current.removeEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
+            if (mProgram)      mProgram.dispose();
             
             super.dispose();
         }
         
-        private function onContextCreated(event:Event):void
+        private function onContextCreated(event:Object):void
         {
-            registerPrograms();
+            createProgram();
             raiseCapacity(0);
         }
         
@@ -345,7 +346,6 @@ package starling.extensions
             
             alpha *= this.alpha;
             
-            var program:String = mTexture.mipMapping ? PROGRAM_MIPMAP : PROGRAM_NO_MIPMAP;
             var context:Context3D = Starling.context;
             var pma:Boolean = texture.premultipliedAlpha;
             
@@ -360,7 +360,7 @@ package starling.extensions
             context.setBlendFactors(mBlendFactorSource, mBlendFactorDestination);
             context.setTextureAt(0, mTexture.base);
             
-            context.setProgram(Starling.current.getProgram(program));
+            context.setProgram(mProgram);
             context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 0, support.mvpMatrix3D, true);
             context.setProgramConstantsFromVector(Context3DProgramType.VERTEX, 4, sRenderAlpha, 1);
             context.setVertexBufferAt(0, mVertexBuffer, VertexData.POSITION_OFFSET, Context3DVertexBufferFormat.FLOAT_2); 
@@ -377,36 +377,41 @@ package starling.extensions
         
         // program management
         
-        private static function registerPrograms():void
+        private function createProgram():void
         {
-            var target:Starling = Starling.current;
-            if (target.hasProgram(PROGRAM_MIPMAP)) return; // already registered
+            var mipmap:Boolean = mTexture.mipMapping;
+            var textureFormat:String = mTexture.format;
+            var context:Context3D = Starling.context;
             
-            for each (var mipmap:Boolean in [true, false])
-            {            
-                // create vertex and fragment programs - from assembly.
+            if (context == null) throw new MissingContextError();
+            if (mProgram) mProgram.dispose();
+            
+            // create vertex and fragment programs from assembly.
+            
+            var textureOptions:String = "2d, clamp, linear, " + (mipmap ? "mipnearest" : "mipnone");
+            
+            if (textureFormat == Context3DTextureFormat.COMPRESSED)
+                textureOptions += ", dxt1";
+            else if (textureFormat == "compressedAlpha")
+                textureOptions += ", dxt5";
+            
+            var vertexProgramCode:String =
+                "m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clipspace
+                "mul v0, va1, vc4 \n" + // multiply color with alpha and pass to fragment program
+                "mov v1, va2      \n";  // pass texture coordinates to fragment program
+            
+            var fragmentProgramCode:String =
+                "tex ft1, v1, fs0 <" + textureOptions + "> \n" + // sample texture 0
+                "mul oc, ft1, v0";                               // multiply color with texel color
+            
+            var vertexProgramAssembler:AGALMiniAssembler = new AGALMiniAssembler();
+            vertexProgramAssembler.assemble(Context3DProgramType.VERTEX, vertexProgramCode);
+            
+            var fragmentProgramAssembler:AGALMiniAssembler = new AGALMiniAssembler();
+            fragmentProgramAssembler.assemble(Context3DProgramType.FRAGMENT, fragmentProgramCode);
                 
-                var programName:String = mipmap ? PROGRAM_MIPMAP : PROGRAM_NO_MIPMAP;
-                var textureOptions:String = "2d, clamp, linear, " + (mipmap ? "mipnearest" : "mipnone"); 
-                
-                var vertexProgramCode:String =
-                    "m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clipspace
-                    "mul v0, va1, vc4 \n" + // multiply color with alpha and pass to fragment program
-                    "mov v1, va2      \n";  // pass texture coordinates to fragment program
-                
-                var fragmentProgramCode:String =
-                    "tex ft1, v1, fs0 <" + textureOptions + "> \n" + // sample texture 0
-                    "mul oc, ft1, v0";                               // multiply color with texel color
-                
-                var vertexProgramAssembler:AGALMiniAssembler = new AGALMiniAssembler();
-                vertexProgramAssembler.assemble(Context3DProgramType.VERTEX, vertexProgramCode);
-                
-                var fragmentProgramAssembler:AGALMiniAssembler = new AGALMiniAssembler();
-                fragmentProgramAssembler.assemble(Context3DProgramType.FRAGMENT, fragmentProgramCode);
-                
-                target.registerProgram(programName, vertexProgramAssembler.agalcode,
-                                                    fragmentProgramAssembler.agalcode);
-            }
+            mProgram = context.createProgram();
+            mProgram.upload(vertexProgramAssembler.agalcode, fragmentProgramAssembler.agalcode);
         }
         
         public function get capacity():int { return mVertexData.numVertices / 4; }
@@ -431,6 +436,6 @@ package starling.extensions
         public function set blendFactorDestination(value:String):void { mBlendFactorDestination = value; }
         
         public function get texture():Texture { return mTexture; }
-        public function set texture(value:Texture):void { mTexture = value; }
+        public function set texture(value:Texture):void { mTexture = value; createProgram(); }
     }
 }
