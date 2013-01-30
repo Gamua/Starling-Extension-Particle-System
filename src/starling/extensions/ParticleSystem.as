@@ -181,26 +181,21 @@ package starling.extensions
             mIndexBuffer.uploadFromVector(mIndices, 0, newCapacity * 6);
         }
         
-        /** Starts the sysytem for a certain time. @default infinite time */
+        /** Starts the emitter for a certain time. @default infinite time */
         public function start(duration:Number=Number.MAX_VALUE):void
         {
             if (mEmissionRate != 0)                
                 mEmissionTime = duration;
         }
         
-        /** Stops the system and removes all existing particles. */
-        public function stop():void
+        /** Stops emitting and optionally removes all existing particles. 
+         *  The remaining particles will keep animating until they die. */
+        public function stop(clearParticles:Boolean=true):void
         {
             mEmissionTime = 0.0;
-            mNumParticles = 0;
+            if (clearParticles) mNumParticles = 0;
         }
-        
-        /** Pauses the system; when you 'start' again, it will continue from the old state. */
-        public function pause():void
-        {
-            mEmissionTime = 0.0;
-        }
-        
+               
         /** Returns an empty rectangle at the particle system's position. Calculating the
          *  actual bounds would be too expensive. */
         public override function getBounds(targetSpace:DisplayObject, 
@@ -245,7 +240,7 @@ package starling.extensions
                     
                     --mNumParticles;
                     
-                    if (mNumParticles == 0)
+                    if (mNumParticles == 0 && mEmissionTime == 0)
                         dispatchEvent(new Event(Event.COMPLETE));
                 }
             }
@@ -409,6 +404,7 @@ package starling.extensions
             }
         }
         
+        public function get isEmitting():Boolean { return mEmissionTime > 0 && mEmissionRate > 0; }
         public function get capacity():int { return mVertexData.numVertices / 4; }
         public function get numParticles():int { return mNumParticles; }
         
