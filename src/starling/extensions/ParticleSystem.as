@@ -191,12 +191,12 @@ package starling.extensions
         
         /** Stops emitting and optionally removes all existing particles. 
          *  The remaining particles will keep animating until they die. */
-        public function stop(clearParticles:Boolean=true):void
+        public function stop(clearParticles:Boolean=false):void
         {
             mEmissionTime = 0.0;
             if (clearParticles) mNumParticles = 0;
         }
-               
+        
         /** Returns an empty rectangle at the particle system's position. Calculating the
          *  actual bounds would be too expensive. */
         public override function getBounds(targetSpace:DisplayObject, 
