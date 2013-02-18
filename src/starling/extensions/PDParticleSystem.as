@@ -11,8 +11,11 @@
 package starling.extensions
 {
     import flash.display3D.Context3DBlendFactor;
-    
-    import starling.textures.Texture;
+import flash.geom.Point;
+
+import starling.extensions.zones.Zone;
+
+import starling.textures.Texture;
     import starling.utils.deg2rad;
     
     public class PDParticleSystem extends ParticleSystem
@@ -63,13 +66,13 @@ package starling.extensions
         private var mEndColor:ColorArgb;                    // finishColor
         private var mEndColorVariance:ColorArgb;            // finishColorVariance
         
-        public function PDParticleSystem(config:XML, texture:Texture)
+        public function PDParticleSystem(config:XML, texture:Texture, zone:Zone=null)
         {
             parseConfig(config);
             
             var emissionRate:Number = mMaxNumParticles / mLifespan;
             super(texture, emissionRate, mMaxNumParticles, mMaxNumParticles,
-                  mBlendFactorSource, mBlendFactorDestination);
+                  mBlendFactorSource, mBlendFactorDestination,zone);
             
             mPremultipliedAlpha = false;
         }
@@ -81,7 +84,8 @@ package starling.extensions
         
         protected override function initParticle(aParticle:Particle):void
         {
-            var particle:PDParticle = aParticle as PDParticle; 
+            var particle:PDParticle = aParticle as PDParticle;
+            var p:Point = mEmitterZone.getLocation();
          
             // for performance reasons, the random variances are calculated inline instead
             // of calling a function
@@ -92,10 +96,10 @@ package starling.extensions
             particle.currentTime = 0.0;
             particle.totalTime = lifespan;
             
-            particle.x = mEmitterX + mEmitterXVariance * (Math.random() * 2.0 - 1.0);
-            particle.y = mEmitterY + mEmitterYVariance * (Math.random() * 2.0 - 1.0);
-            particle.startX = mEmitterX;
-            particle.startY = mEmitterY;
+            particle.x = p.x + mEmitterXVariance * (Math.random() * 2.0 - 1.0);
+            particle.y = p.y + mEmitterYVariance * (Math.random() * 2.0 - 1.0);
+            particle.startX = p.x;
+            particle.startY = p.y;
             
             var angle:Number = mEmitAngle + mEmitAngleVariance * (Math.random() * 2.0 - 1.0);
             var speed:Number = mSpeed + mSpeedVariance * (Math.random() * 2.0 - 1.0);
@@ -158,6 +162,7 @@ package starling.extensions
         protected override function advanceParticle(aParticle:Particle, passedTime:Number):void
         {
             var particle:PDParticle = aParticle as PDParticle;
+            var p:Point=mEmitterZone.getLocation();
             
             var restTime:Number = particle.totalTime - particle.currentTime;
             passedTime = restTime > passedTime ? passedTime : restTime;
@@ -167,8 +172,8 @@ package starling.extensions
             {
                 particle.emitRotation += particle.emitRotationDelta * passedTime;
                 particle.emitRadius   -= particle.emitRadiusDelta   * passedTime;
-                particle.x = mEmitterX - Math.cos(particle.emitRotation) * particle.emitRadius;
-                particle.y = mEmitterY - Math.sin(particle.emitRotation) * particle.emitRadius;
+                particle.x = p.x - Math.cos(particle.emitRotation) * particle.emitRadius;
+                particle.y = p.y - Math.sin(particle.emitRotation) * particle.emitRadius;
                 
                 if (particle.emitRadius < mMinRadius)
                     particle.currentTime = particle.totalTime;
