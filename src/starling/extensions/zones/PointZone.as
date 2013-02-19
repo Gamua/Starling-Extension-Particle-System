@@ -41,7 +41,7 @@ package starling.extensions.zones
 		}
 
         /**
-         * The x coordination of the center of rectangle.
+         * The x coordinate of the center of rectangle.
          */
         public function set x(value:Number):void
         {
@@ -53,7 +53,7 @@ package starling.extensions.zones
         }
 
         /**
-         * The y coordination of the center of rectangle.
+         * The y coordinate of the center of rectangle.
          */
         public function set y(value:Number):void
         {
@@ -67,8 +67,6 @@ package starling.extensions.zones
 
 		/**
 		 * The contains method determines whether a point is inside the zone.
-		 * This method is used by the initializers and actions that
-		 * use the zone. Usually, it need not be called directly by the user.
 		 * 
 		 * @param x The x coordinate of the location to test for.
 		 * @param y The y coordinate of the location to test for.
@@ -81,8 +79,6 @@ package starling.extensions.zones
 		
 		/**
 		 * The getLocation method returns a random point inside the zone.
-		 * This method is used by the initializers and actions that
-		 * use the zone. Usually, it need not be called directly by the user.
 		 * 
 		 * @return a random point inside the zone.
 		 */
@@ -93,8 +89,6 @@ package starling.extensions.zones
 		
 		/**
 		 * The getArea method returns the size of the zone.
-		 * This method is used by the MultiZone class. Usually, 
-		 * it need not be called directly by the user.
 		 * 
 		 * @return a random point inside the zone.
 		 */

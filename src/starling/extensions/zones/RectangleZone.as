@@ -33,27 +33,26 @@ import flash.geom.Point;
 		private var _height : Number;
         private var _halfWidth : Number;
         private var _halfHeight : Number;
-		
-		/**
-		 * The constructor creates a RectangleZone zone.
-		 * 
-		 * @param left The left coordinate of the rectangle defining the region of the zone.
-		 * @param top The top coordinate of the rectangle defining the region of the zone.
-		 * @param right The right coordinate of the rectangle defining the region of the zone.
-		 * @param bottom The bottom coordinate of the rectangle defining the region of the zone.
-		 */
+
+        /**
+         *
+         * @param width The width of the rectangle.
+         * @param height The height of the rectangle.
+         * @param x The center x coordinate of the rectangle.
+         * @param y The center y coordinate of the rectangle.
+         * @param rotation The rotation of the rectangle around center.
+         */
 		public function RectangleZone( width:Number = 0, height:Number = 0, x:Number = 0, y:Number = 0 , rotation:Number = 0)
 		{
-			this.width=width;
-            this.height=height;
-            _x = x;
-            _y = y;
-            _rotation = rotation;
-
+			this.width      = width;
+            this.height     = height;
+            this._x         = x;
+            this._y         = y;
+            this._rotation  = rotation;
 		}
 
         /**
-         * The x coordination of the center of rectangle.
+         * The center x coordinate of the center of rectangle.
          */
         public function set x(value:Number):void
         {
@@ -65,7 +64,7 @@ import flash.geom.Point;
         }
 
         /**
-         * The y coordination of the center of rectangle.
+         * The center y coordinate of the center of rectangle.
          */
         public function set y(value:Number):void
         {
@@ -90,7 +89,7 @@ import flash.geom.Point;
         }
 		
 		/**
-		 * The left coordinate of the rectangle defining the region of the zone.
+		 * The width of the rectangle.
 		 */
 		public function get width() : Number
 		{
@@ -104,7 +103,7 @@ import flash.geom.Point;
 		}
 
 		/**
-		 * The right coordinate of the rectangle defining the region of the zone.
+		 * The height of the rectangle.
 		 */
 		public function get height() : Number
 		{
@@ -117,11 +116,8 @@ import flash.geom.Point;
             _halfHeight=_height*.5;
 		}
 
-
 		/**
 		 * The contains method determines whether a point is inside the zone.
-		 * This method is used by the initializers and actions that
-		 * use the zone. Usually, it need not be called directly by the user.
 		 * 
 		 * @param x The x coordinate of the location to test for.
 		 * @param y The y coordinate of the location to test for.
@@ -129,25 +125,22 @@ import flash.geom.Point;
 		 */
 		public function contains( x:Number, y:Number ):Boolean
 		{
-			return true;//x >= _left && x <= _right && y >= _top && y <= _bottom;
+            var p:Point=globalToLocal(x, y);
+			return p.x >= 0 && p.x <= _width && p.y >=0 && p.y <= _height;
 		}
 		
 		/**
 		 * The getLocation method returns a random point inside the zone.
-		 * This method is used by the initializers and actions that
-		 * use the zone. Usually, it need not be called directly by the user.
 		 * 
 		 * @return a random point inside the zone.
 		 */
 		public function getLocation():Point
 		{
-            return globalToLocal(_width*Math.random()-_halfWidth,_height*Math.random()-_halfHeight);
+            return localToGlobal(_width*Math.random(),_height*Math.random());
 		}
 		
 		/**
 		 * The getArea method returns the size of the zone.
-		 * This method is used by the MultiZone class. Usually, 
-		 * it need not be called directly by the user.
 		 * 
 		 * @return a random point inside the zone.
 		 */
@@ -155,6 +148,21 @@ import flash.geom.Point;
 		{
 			return _width * _height;
 		}
+
+        /**
+         * Transform the local point to global point in the rectangle.
+         *
+         * @param x
+         * @param y
+         * @return
+         */
+        private function localToGlobal(x:Number, y:Number):Point
+        {
+            // Transform the coordination
+            var m:Matrix = new Matrix(1,0,0,1,x-_halfWidth,y-_halfHeight);
+            m.rotate(_rotation);
+            return new Point(m.tx + _x,m.ty + _y);
+        }
 
         /**
          * Transform the global point to local point in the rectangle.
@@ -165,18 +173,11 @@ import flash.geom.Point;
          */
         private function globalToLocal(x:Number, y:Number):Point
         {
-
-            var m:Matrix = new Matrix();
-            m.tx = x;
-            m.ty = y;
-            m.rotate(_rotation);
-
-//            var p:Point=new Point(m.tx + _x,m.ty + _y);
-//            trace(p);
-//            return p;
-            return new Point(m.tx + _x,m.ty + _y);
+            // Transform the coordination
+            var m:Matrix = new Matrix(1,0,0,1,x-_x,y-_y);
+            m.rotate(-_rotation);
+            return new Point(m.tx + _halfWidth,m.ty + _halfHeight);
         }
-
 
 	}
 }

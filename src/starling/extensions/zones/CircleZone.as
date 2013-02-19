@@ -35,17 +35,14 @@ package starling.extensions.zones
 		private var _outerSq:Number;
 		
 		private static const TWOPI:Number = Math.PI * 2;
-		
-		/**
-		 * The constructor defines a DiscZone zone.
-		 * 
-		 * @param center The centre of the disc.
-		 * @param outerRadius The radius of the outer edge of the disc.
-		 * @param innerRadius If set, this defines the radius of the inner
-		 * edge of the disc. Points closer to the center than this inner radius
-		 * are excluded from the zone. If this parameter is not set then all 
-		 * points inside the outer radius are included in the zone.
-		 */
+
+        /**
+         *
+         * @param x The x coordinate of the center of the the circle
+         * @param y The y coordinate of the center of the the circle
+         * @param outerRadius The radius of the outer edge of the disc.
+         * @param innerRadius If set, this defines the radius of the inner
+         */
 		public function CircleZone( x:Number = 0, y:Number = 0, outerRadius:Number = 0, innerRadius:Number = 0 )
 		{
 			if( outerRadius < innerRadius )
@@ -115,8 +112,6 @@ package starling.extensions.zones
 
 		/**
 		 * The contains method determines whether a point is inside the zone.
-		 * This method is used by the initializers and actions that
-		 * use the zone. Usually, it need not be called directly by the user.
 		 * 
 		 * @param x The x coordinate of the location to test for.
 		 * @param y The y coordinate of the location to test for.
@@ -132,8 +127,6 @@ package starling.extensions.zones
 		
 		/**
 		 * The getLocation method returns a random point inside the zone.
-		 * This method is used by the initializers and actions that
-		 * use the zone. Usually, it need not be called directly by the user.
 		 * 
 		 * @return a random point inside the zone.
 		 */
@@ -148,8 +141,6 @@ package starling.extensions.zones
 		
 		/**
 		 * The getArea method returns the size of the zone.
-		 * This method is used by the MultiZone class. Usually, 
-		 * it need not be called directly by the user.
 		 * 
 		 * @return a random point inside the zone.
 		 */
