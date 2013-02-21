@@ -46,6 +46,13 @@ The class `ParticleSystem` extends `DisplayObject` and behaves accordingly. You 
 
     // stop emitting particles
     mParticleSystem.stop();
+    
+    // Create a rectangle zone emitter with 100 width, 50 height and 45 rotation
+    var zone:RectangleZone = new RectangleZone(100,50);
+    zone.x = 320;
+    zone.y = 240;
+    zone.rotation = Math.PI/4;    
+    mParticleSystem.emitterZone=zone;    
 
 More information
 ----------------
