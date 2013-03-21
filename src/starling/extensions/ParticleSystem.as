@@ -30,6 +30,8 @@ package starling.extensions
     import starling.display.DisplayObject;
     import starling.errors.MissingContextError;
     import starling.events.Event;
+    import starling.extensions.zones.PointZone;
+    import starling.extensions.zones.Zone;
     import starling.textures.Texture;
     import starling.utils.MatrixUtil;
     import starling.utils.VertexData;
@@ -59,15 +61,16 @@ package starling.extensions
         private static var sHelperPoint:Point = new Point();
         private static var sRenderAlpha:Vector.<Number> = new <Number>[1.0, 1.0, 1.0, 1.0];
         
-        protected var mEmitterX:Number;
-        protected var mEmitterY:Number;
+//        protected var mEmitterX:Number;
+//        protected var mEmitterY:Number;
         protected var mPremultipliedAlpha:Boolean;
         protected var mBlendFactorSource:String;     
         protected var mBlendFactorDestination:String;
+        protected var mEmitterZone:Zone;
         
         public function ParticleSystem(texture:Texture, emissionRate:Number, 
                                        initialCapacity:int=128, maxCapacity:int=8192,
-                                       blendFactorSource:String=null, blendFactorDest:String=null)
+                                       blendFactorSource:String=null, blendFactorDest:String=null, zone:Zone=null)
         {
             if (texture == null) throw new ArgumentError("texture must not be null");
             
@@ -79,9 +82,13 @@ package starling.extensions
             mEmissionRate = emissionRate;
             mEmissionTime = 0.0;
             mFrameTime = 0.0;
-            mEmitterX = mEmitterY = 0;
+//            mEmitterX = mEmitterY = 0;
             mMaxCapacity = Math.min(8192, maxCapacity);
-            
+
+            // Create a PointZone for default
+            if(zone==null) zone = new PointZone();
+            mEmitterZone=zone;
+
             mBlendFactorDestination = blendFactorDest || Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA;
             mBlendFactorSource = blendFactorSource ||
                 (mPremultipliedAlpha ? Context3DBlendFactor.ONE : Context3DBlendFactor.SOURCE_ALPHA);
@@ -118,8 +125,9 @@ package starling.extensions
         
         protected function initParticle(particle:Particle):void
         {
-            particle.x = mEmitterX;
-            particle.y = mEmitterY;
+            var p:Point = mEmitterZone.getLocation();
+            particle.x = p.x;
+            particle.y = p.y;
             particle.currentTime = 0;
             particle.totalTime = 1;
             particle.color = Math.random() * 0xffffff;
@@ -439,11 +447,11 @@ package starling.extensions
         public function get emissionRate():Number { return mEmissionRate; }
         public function set emissionRate(value:Number):void { mEmissionRate = value; }
         
-        public function get emitterX():Number { return mEmitterX; }
-        public function set emitterX(value:Number):void { mEmitterX = value; }
-        
-        public function get emitterY():Number { return mEmitterY; }
-        public function set emitterY(value:Number):void { mEmitterY = value; }
+        public function get emitterX():Number { return mEmitterZone.x; }
+        public function set emitterX(value:Number):void { mEmitterZone.x = value; }
+
+        public function get emitterY():Number { return mEmitterZone.y; }
+        public function set emitterY(value:Number):void { mEmitterZone.y = value; }
         
         public function get blendFactorSource():String { return mBlendFactorSource; }
         public function set blendFactorSource(value:String):void { mBlendFactorSource = value; }
@@ -453,5 +461,9 @@ package starling.extensions
         
         public function get texture():Texture { return mTexture; }
         public function set texture(value:Texture):void { mTexture = value; createProgram(); }
+
+        public function get emitterZone():Zone { return mEmitterZone; }
+        public function set emitterZone(value:Zone):void { mEmitterZone = value; }
+
     }
 }
