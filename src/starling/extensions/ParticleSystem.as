@@ -396,37 +396,39 @@ package starling.extensions
         {
             var mipmap:Boolean = mTexture.mipMapping;
             var textureFormat:String = mTexture.format;
-            var context:Context3D = Starling.context;
+            var programName:String = "ext.ParticleSystem." + textureFormat + mipmap ? "+mm" : "";
             
-            if (context == null) throw new MissingContextError();
-            if (mProgram) mProgram.dispose();
+            mProgram = Starling.current.getProgram(programName);
             
-            // create vertex and fragment programs from assembly.
-            
-            var textureOptions:String = "2d, clamp, linear, " + (mipmap ? "mipnearest" : "mipnone");
-            
-            if (textureFormat == Context3DTextureFormat.COMPRESSED)
-                textureOptions += ", dxt1";
-            else if (textureFormat == "compressedAlpha")
-                textureOptions += ", dxt5";
-            
-            var vertexProgramCode:String =
-                "m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clipspace
-                "mul v0, va1, vc4 \n" + // multiply color with alpha and pass to fragment program
-                "mov v1, va2      \n";  // pass texture coordinates to fragment program
-            
-            var fragmentProgramCode:String =
-                "tex ft1, v1, fs0 <" + textureOptions + "> \n" + // sample texture 0
-                "mul oc, ft1, v0";                               // multiply color with texel color
-            
-            var vertexProgramAssembler:AGALMiniAssembler = new AGALMiniAssembler();
-            vertexProgramAssembler.assemble(Context3DProgramType.VERTEX, vertexProgramCode);
-            
-            var fragmentProgramAssembler:AGALMiniAssembler = new AGALMiniAssembler();
-            fragmentProgramAssembler.assemble(Context3DProgramType.FRAGMENT, fragmentProgramCode);
+            if (mProgram == null)
+            {
+                var textureOptions:String = "2d, clamp, linear, " + (mipmap ? "mipnearest" : "mipnone");
                 
-            mProgram = context.createProgram();
-            mProgram.upload(vertexProgramAssembler.agalcode, fragmentProgramAssembler.agalcode);
+                if (textureFormat == Context3DTextureFormat.COMPRESSED)
+                    textureOptions += ", dxt1";
+                else if (textureFormat == "compressedAlpha")
+                    textureOptions += ", dxt5";
+                
+                var vertexProgramCode:String =
+                    "m44 op, va0, vc0 \n" + // 4x4 matrix transform to output clipspace
+                    "mul v0, va1, vc4 \n" + // multiply color with alpha and pass to fragment program
+                    "mov v1, va2      \n";  // pass texture coordinates to fragment program
+                
+                var fragmentProgramCode:String =
+                    "tex ft1, v1, fs0 <" + textureOptions + "> \n" + // sample texture 0
+                    "mul oc, ft1, v0";                               // multiply color with texel color
+                
+                var vertexProgramAssembler:AGALMiniAssembler = new AGALMiniAssembler();
+                vertexProgramAssembler.assemble(Context3DProgramType.VERTEX, vertexProgramCode);
+                
+                var fragmentProgramAssembler:AGALMiniAssembler = new AGALMiniAssembler();
+                fragmentProgramAssembler.assemble(Context3DProgramType.FRAGMENT, fragmentProgramCode);
+                
+                Starling.current.registerProgram(programName, 
+                    vertexProgramAssembler.agalcode, fragmentProgramAssembler.agalcode);
+                
+                mProgram = Starling.current.getProgram(programName);
+            }
         }
         
         public function get isEmitting():Boolean { return mEmissionTime > 0 && mEmissionRate > 0; }
