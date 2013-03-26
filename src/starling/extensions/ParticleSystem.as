@@ -100,7 +100,6 @@ package starling.extensions
             
             if (mVertexBuffer) mVertexBuffer.dispose();
             if (mIndexBuffer)  mIndexBuffer.dispose();
-            if (mProgram)      mProgram.dispose();
             
             super.dispose();
         }
@@ -396,7 +395,7 @@ package starling.extensions
         {
             var mipmap:Boolean = mTexture.mipMapping;
             var textureFormat:String = mTexture.format;
-            var programName:String = "ext.ParticleSystem." + textureFormat + mipmap ? "+mm" : "";
+            var programName:String = "ext.ParticleSystem." + textureFormat + (mipmap ? "+mm" : "");
             
             mProgram = Starling.current.getProgram(programName);
             
