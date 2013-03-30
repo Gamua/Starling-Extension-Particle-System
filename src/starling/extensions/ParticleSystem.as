@@ -381,7 +381,7 @@ package starling.extensions
             var p:Particle;
             for (var i:int=0; i<count; i++)
             {
-                p = mParticles[i];
+                p = mParticles[mNumParticles+i];
                 initParticle(p);
                 advanceParticle(p, Math.random() * p.totalTime);
             }
