@@ -2,7 +2,7 @@
 <actionScriptProperties analytics="false" mainApplicationPath="Startup.as" projectUUID="dbee7875-2238-4801-ba07-7d7363093789" version="11">
   <compiler additionalCompilerArguments="-locale en_US" advancedTelemetry="false" autoRSLOrdering="true" copyDependentFiles="true" fteInMXComponents="false" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="false" useDebugRSLSwfs="true" useFlashSDK="true" verifyDigests="true" warn="true">
     <compilerSourcePath>
-      <compilerSourcePathEntry kind="1" linkType="1" path="/Users/redge/Development/starling-extensions/particle-system/src"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="/Users/redge/Dropbox/Development/starling-extensions/particle-system/src"/>
     </compilerSourcePath>
     <libraryPath defaultLinkType="0">
       <libraryPathEntry kind="4" path="">
