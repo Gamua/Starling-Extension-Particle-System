@@ -188,12 +188,18 @@ package starling.extensions
                 mEmissionTime = duration;
         }
         
-        /** Stops emitting and optionally removes all existing particles. 
-         *  The remaining particles will keep animating until they die. */
+        /** Stops emitting new particles. Depending on 'clearParticles', the existing particles
+         *  will either keep animating until they die or will be removed right away. */
         public function stop(clearParticles:Boolean=false):void
         {
             mEmissionTime = 0.0;
-            if (clearParticles) mNumParticles = 0;
+            if (clearParticles) clear();
+        }
+        
+        /** Removes all currently active particles. */
+        public function clear():void
+        {
+            mNumParticles = 0;
         }
         
         /** Returns an empty rectangle at the particle system's position. Calculating the
@@ -259,9 +265,15 @@ package starling.extensions
                         if (mNumParticles == capacity)
                             raiseCapacity(capacity);
                     
-                        particle = mParticles[int(mNumParticles++)] as Particle;
+                        particle = mParticles[mNumParticles] as Particle;
                         initParticle(particle);
-                        advanceParticle(particle, mFrameTime);
+                        
+                        // particle might be dead at birth
+                        if (particle.totalTime > 0.0)
+                        {
+                            advanceParticle(particle, mFrameTime);
+                            ++mNumParticles
+                        }
                     }
                     
                     mFrameTime -= timeBetweenParticles;

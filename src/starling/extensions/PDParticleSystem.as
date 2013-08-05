@@ -86,11 +86,12 @@ package starling.extensions
             // for performance reasons, the random variances are calculated inline instead
             // of calling a function
             
-            var lifespan:Number = mLifespan + mLifespanVariance * (Math.random() * 2.0 - 1.0); 
-            if (lifespan <= 0.0) return;
+            var lifespan:Number = mLifespan + mLifespanVariance * (Math.random() * 2.0 - 1.0);
             
             particle.currentTime = 0.0;
-            particle.totalTime = lifespan;
+            particle.totalTime = lifespan > 0.0 ? lifespan : 0.0;
+            
+            if (lifespan <= 0.0) return;
             
             particle.x = mEmitterX + mEmitterXVariance * (Math.random() * 2.0 - 1.0);
             particle.y = mEmitterY + mEmitterYVariance * (Math.random() * 2.0 - 1.0);
@@ -402,4 +403,3 @@ package starling.extensions
         public function set endColorVariance(value:ColorArgb):void { mEndColorVariance = value; }
     }
 }
-
