@@ -388,7 +388,7 @@ package starling.extensions
             count = Math.min(count, mMaxCapacity - mNumParticles);
             
             if (mNumParticles + count > capacity)
-                raiseCapacity(count - capacity);
+                raiseCapacity(mNumParticles + count - capacity);
             
             var p:Particle;
             for (var i:int=0; i<count; i++)
