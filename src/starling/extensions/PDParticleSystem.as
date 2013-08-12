@@ -254,6 +254,16 @@ package starling.extensions
             mBlendFactorSource = getBlendFunc(config.blendFuncSource);
             mBlendFactorDestination = getBlendFunc(config.blendFuncDestination);
             
+            // compatibility with future Particle Designer versions
+            // (might fix some of the uppercase/lowercase typos)
+            
+            if (isNaN(mEndSizeVariance))
+                mEndSizeVariance = getFloatValue(config.finishParticleSizeVariance);
+            if (isNaN(mLifespan))
+                mLifespan = Math.max(0.01, getFloatValue(config.particleLifespan));
+            if (isNaN(mLifespanVariance))
+                mLifespanVariance = getFloatValue(config.particleLifeSpanVariance);
+            
             function getIntValue(element:XMLList):int
             {
                 return parseInt(element.attribute("value"));
