@@ -175,7 +175,7 @@ package starling.extensions
             if (mIndexBuffer)  mIndexBuffer.dispose();
             
             mVertexBuffer = context.createVertexBuffer(newCapacity * 4, VertexData.ELEMENTS_PER_VERTEX);
-            mVertexBuffer.uploadFromVector(mVertexData.rawData, 0, newCapacity * 4);
+            mVertexBuffer.uploadFromByteArray(mVertexData.rawData, 0, 0, newCapacity * 4);
             
             mIndexBuffer  = context.createIndexBuffer(newCapacity * 6);
             mIndexBuffer.uploadFromVector(mIndices, 0, newCapacity * 6);
@@ -307,10 +307,7 @@ package starling.extensions
                 yOffset = textureHeight * particle.scale >> 1;
                 
                 for (var j:int=0; j<4; ++j)
-                {
-                    mVertexData.setColor(vertexID+j, color);
-                    mVertexData.setAlpha(vertexID+j, alpha);
-                }
+                    mVertexData.setColorAndAlpha(vertexID+j, color, alpha);
                 
                 if (rotation)
                 {
@@ -360,7 +357,7 @@ package starling.extensions
             
             if (context == null) throw new MissingContextError();
             
-            mVertexBuffer.uploadFromVector(mVertexData.rawData, 0, mNumParticles * 4);
+            mVertexBuffer.uploadFromByteArray(mVertexData.rawData, 0, 0, mNumParticles * 4);
             mIndexBuffer.uploadFromVector(mIndices, 0, mNumParticles * 6);
             
             context.setBlendFactors(mBlendFactorSource, mBlendFactorDestination);
@@ -370,7 +367,7 @@ package starling.extensions
             context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 0, support.mvpMatrix3D, true);
             context.setProgramConstantsFromVector(Context3DProgramType.VERTEX, 4, sRenderAlpha, 1);
             context.setVertexBufferAt(0, mVertexBuffer, VertexData.POSITION_OFFSET, Context3DVertexBufferFormat.FLOAT_2); 
-            context.setVertexBufferAt(1, mVertexBuffer, VertexData.COLOR_OFFSET,    Context3DVertexBufferFormat.FLOAT_4);
+            context.setVertexBufferAt(1, mVertexBuffer, VertexData.COLOR_OFFSET,    Context3DVertexBufferFormat.BYTES_4);
             context.setVertexBufferAt(2, mVertexBuffer, VertexData.TEXCOORD_OFFSET, Context3DVertexBufferFormat.FLOAT_2);
             
             context.drawTriangles(mIndexBuffer, 0, mNumParticles * 2);
