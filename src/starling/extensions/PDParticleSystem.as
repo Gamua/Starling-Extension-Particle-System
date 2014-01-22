@@ -104,7 +104,7 @@ package starling.extensions
             particle.velocityY = speed * Math.sin(angle);
             
             particle.emitRadius = mMaxRadius + mMaxRadiusVariance * (Math.random() * 2.0 - 1.0);
-            particle.emitRadiusDelta = mMaxRadius / lifespan;
+            particle.emitRadiusDelta = (mMaxRadius - mMinRadius) / lifespan;
             particle.emitRotation = mEmitAngle + mEmitAngleVariance * (Math.random() * 2.0 - 1.0); 
             particle.emitRotationDelta = mRotatePerSecond + mRotatePerSecondVariance * (Math.random() * 2.0 - 1.0); 
             particle.radialAcceleration = mRadialAcceleration + mRadialAccelerationVariance * (Math.random() * 2.0 - 1.0);
