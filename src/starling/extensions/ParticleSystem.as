@@ -35,7 +35,7 @@ package starling.extensions
     import starling.utils.VertexData;
     
     /** Dispatched when emission of particles is finished. */
-    [Event(name="complete", type="starling.events.Event")]
+    [Event(name="removeFromJuggler", type="starling.events.Event")]
     
     public class ParticleSystem extends DisplayObject implements IAnimatable
     {
@@ -251,7 +251,7 @@ package starling.extensions
                     --mNumParticles;
                     
                     if (mNumParticles == 0 && mEmissionTime == 0)
-                        dispatchEvent(new Event(Event.COMPLETE));
+                        dispatchEvent(new Event(Event.REMOVE_FROM_JUGGLER));
                 }
             }
             
