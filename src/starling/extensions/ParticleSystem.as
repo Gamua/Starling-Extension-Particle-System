@@ -463,7 +463,19 @@ package starling.extensions
         public function set blendFactorDestination(value:String):void { mBlendFactorDestination = value; }
         
         public function get texture():Texture { return mTexture; }
-        public function set texture(value:Texture):void { mTexture = value; createProgram(); }
+        public function set texture(value:Texture):void
+        {
+            mTexture = value;
+            createProgram();
+            for (var i:int = mVertexData.numVertices - 4; i >= 0; i -= 4)
+            {
+                mVertexData.setTexCoords(i + 0, 0.0, 0.0);
+                mVertexData.setTexCoords(i + 1, 1.0, 0.0);
+                mVertexData.setTexCoords(i + 2, 0.0, 1.0);
+                mVertexData.setTexCoords(i + 3, 1.0, 1.0);
+                mTexture.adjustVertexData(mVertexData, i, 4);
+            }
+        }
         
         public function get smoothing():String { return mSmoothing; }
         public function set smoothing(value:String):void { mSmoothing = value; }
