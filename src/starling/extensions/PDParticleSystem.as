@@ -290,16 +290,16 @@ package starling.extensions
                 var value:int = getIntValue(element);
                 switch (value)
                 {
-                    case 0:     return Context3DBlendFactor.ZERO; break;
-                    case 1:     return Context3DBlendFactor.ONE; break;
-                    case 0x300: return Context3DBlendFactor.SOURCE_COLOR; break;
-                    case 0x301: return Context3DBlendFactor.ONE_MINUS_SOURCE_COLOR; break;
-                    case 0x302: return Context3DBlendFactor.SOURCE_ALPHA; break;
-                    case 0x303: return Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA; break;
-                    case 0x304: return Context3DBlendFactor.DESTINATION_ALPHA; break;
-                    case 0x305: return Context3DBlendFactor.ONE_MINUS_DESTINATION_ALPHA; break;
-                    case 0x306: return Context3DBlendFactor.DESTINATION_COLOR; break;
-                    case 0x307: return Context3DBlendFactor.ONE_MINUS_DESTINATION_COLOR; break;
+                    case 0:     return Context3DBlendFactor.ZERO;
+                    case 1:     return Context3DBlendFactor.ONE;
+                    case 0x300: return Context3DBlendFactor.SOURCE_COLOR;
+                    case 0x301: return Context3DBlendFactor.ONE_MINUS_SOURCE_COLOR;
+                    case 0x302: return Context3DBlendFactor.SOURCE_ALPHA;
+                    case 0x303: return Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA;
+                    case 0x304: return Context3DBlendFactor.DESTINATION_ALPHA;
+                    case 0x305: return Context3DBlendFactor.ONE_MINUS_DESTINATION_ALPHA;
+                    case 0x306: return Context3DBlendFactor.DESTINATION_COLOR;
+                    case 0x307: return Context3DBlendFactor.ONE_MINUS_DESTINATION_COLOR;
                     default:    throw new ArgumentError("unsupported blending function: " + value);
                 }
             }
