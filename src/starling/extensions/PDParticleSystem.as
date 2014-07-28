@@ -264,6 +264,8 @@ package starling.extensions
                 mLifespan = Math.max(0.01, getFloatValue(config.particleLifespan));
             if (isNaN(mLifespanVariance))
                 mLifespanVariance = getFloatValue(config.particleLifeSpanVariance);
+            if (isNaN(mMinRadiusVariance))
+                mMinRadiusVariance = 0.0;
             
             function getIntValue(element:XMLList):int
             {
