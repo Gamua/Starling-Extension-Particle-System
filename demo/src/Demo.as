@@ -25,24 +25,24 @@ package
         
         [Embed(source="../media/sun.pex", mimeType="application/octet-stream")]
         private static const SunConfig:Class;
-        
+
         [Embed(source="../media/jellyfish.pex", mimeType="application/octet-stream")]
         private static const JellyfishConfig:Class;
-        
+
         // particle textures
         
-        [Embed(source = "../media/drugs_particle.png")]
+        [Embed(source="../media/drugs_particle.png")]
         private static const DrugsParticle:Class;
         
-        [Embed(source = "../media/fire_particle.png")]
+        [Embed(source="../media/fire_particle.png")]
         private static const FireParticle:Class;
         
-        [Embed(source = "../media/sun_particle.png")]
+        [Embed(source="../media/sun_particle.png")]
         private static const SunParticle:Class;
         
-        [Embed(source = "../media/jellyfish_particle.png")]
+        [Embed(source="../media/jellyfish_particle.png")]
         private static const JellyfishParticle:Class;
-        
+
         // member variables
         
         private var mParticleSystems:Vector.<ParticleSystem>;
@@ -51,17 +51,17 @@ package
         public function Demo()
         {
             var drugsConfig:XML = XML(new DrugsConfig());
-            var drugsTexture:Texture = Texture.fromBitmap(new DrugsParticle());
+            var drugsTexture:Texture = Texture.fromEmbeddedAsset(DrugsParticle);
             
             var fireConfig:XML = XML(new FireConfig());
-            var fireTexture:Texture = Texture.fromBitmap(new FireParticle());
+            var fireTexture:Texture = Texture.fromEmbeddedAsset(FireParticle);
             
             var sunConfig:XML = XML(new SunConfig());
-            var sunTexture:Texture = Texture.fromBitmap(new SunParticle());
+            var sunTexture:Texture = Texture.fromEmbeddedAsset(SunParticle);
             
             var jellyConfig:XML = XML(new JellyfishConfig());
-            var jellyTexture:Texture = Texture.fromBitmap(new JellyfishParticle());
-            
+            var jellyTexture:Texture = Texture.fromEmbeddedAsset(JellyfishParticle);
+
             mParticleSystems = new <ParticleSystem>[
                 new PDParticleSystem(drugsConfig, drugsTexture),
                 new PDParticleSystem(fireConfig, fireTexture),

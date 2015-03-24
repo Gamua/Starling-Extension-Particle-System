@@ -71,8 +71,6 @@ package starling.extensions
             var emissionRate:Number = mMaxNumParticles / mLifespan;
             super(texture, emissionRate, mMaxNumParticles, mMaxNumParticles,
                   mBlendFactorSource, mBlendFactorDestination);
-            
-            mPremultipliedAlpha = false;
         }
         
         protected override function createParticle():Particle
