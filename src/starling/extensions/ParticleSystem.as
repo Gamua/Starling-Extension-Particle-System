@@ -153,7 +153,7 @@ package starling.extensions
         private function raiseCapacity(byAmount:int):void
         {
             var oldCapacity:int = capacity;
-            var newCapacity:int = Math.min(mMaxCapacity, capacity + byAmount);
+            var newCapacity:int = Math.min(mMaxCapacity, oldCapacity + byAmount);
             var context:Context3D = Starling.context;
             
             if (context == null) throw new MissingContextError();
@@ -183,6 +183,12 @@ package starling.extensions
                 mIndices[int(numIndices+4)] = numVertices + 3;
                 mIndices[int(numIndices+5)] = numVertices + 2;
             }
+
+            if (newCapacity < oldCapacity)
+            {
+                mParticles.length = newCapacity;
+                mIndices.length = newCapacity * 6;
+            }
             
             mParticles.fixed = true;
             mIndices.fixed = true;
@@ -191,12 +197,15 @@ package starling.extensions
             
             if (mVertexBuffer) mVertexBuffer.dispose();
             if (mIndexBuffer)  mIndexBuffer.dispose();
-            
-            mVertexBuffer = context.createVertexBuffer(newCapacity * 4, VertexData.ELEMENTS_PER_VERTEX);
-            mVertexBuffer.uploadFromVector(mVertexData.rawData, 0, newCapacity * 4);
-            
-            mIndexBuffer  = context.createIndexBuffer(newCapacity * 6);
-            mIndexBuffer.uploadFromVector(mIndices, 0, newCapacity * 6);
+
+            if (newCapacity > 0)
+            {
+                mVertexBuffer = context.createVertexBuffer(newCapacity * 4, VertexData.ELEMENTS_PER_VERTEX);
+                mVertexBuffer.uploadFromVector(mVertexData.rawData, 0, newCapacity * 4);
+
+                mIndexBuffer  = context.createIndexBuffer(newCapacity * 6);
+                mIndexBuffer.uploadFromVector(mIndices, 0, newCapacity * 6);
+            }
         }
         
         /** Starts the emitter for a certain time. @default infinite time */
@@ -263,9 +272,9 @@ package starling.extensions
                     }
                     
                     --mNumParticles;
-                    
+
                     if (mNumParticles == 0 && mEmissionTime == 0)
-                        dispatchEvent(new Event(Event.COMPLETE));
+                        dispatchEventWith(Event.COMPLETE);
                 }
             }
             
@@ -299,8 +308,11 @@ package starling.extensions
                 
                 if (mEmissionTime != Number.MAX_VALUE)
                     mEmissionTime = Math.max(0.0, mEmissionTime - passedTime);
+
+                if (mNumParticles == 0 && mEmissionTime == 0)
+                    dispatchEventWith(Event.COMPLETE);
             }
-            
+
             // update vertex data
             
             var vertexID:int = 0;
