@@ -266,9 +266,10 @@ package starling.extensions
                 {
                     if (particleIndex != mNumParticles - 1)
                     {
-                        var nextParticle:Particle = mParticles[int(mNumParticles-1)] as Particle;
-                        mParticles[int(mNumParticles-1)] = particle;
-                        mParticles[particleIndex] = nextParticle;
+                        mParticles.fixed = false;
+                        mParticles.splice(particleIndex, 1);
+                        mParticles[mParticles.length] = particle;
+                        mParticles.fixed = true;
                     }
                     
                     --mNumParticles;
