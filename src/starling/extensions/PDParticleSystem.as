@@ -26,7 +26,6 @@ package starling.extensions
         private var _emitterYVariance:Number;               // sourcePositionVariance y
         
         // particle configuration
-        private var _maxNumParticles:int;                   // maxParticles
         private var _lifespan:Number;                       // particleLifeSpan
         private var _lifespanVariance:Number;               // particleLifeSpanVariance
         private var _startSize:Number;                      // startParticleSize
@@ -212,7 +211,7 @@ package starling.extensions
         
         private function updateEmissionRate():void
         {
-            emissionRate = _maxNumParticles / _lifespan;
+            emissionRate = capacity / _lifespan;
         }
         
         private function parseConfig(config:XML):void
@@ -222,7 +221,6 @@ package starling.extensions
             _gravityX = parseFloat(config.gravity.attribute("x"));
             _gravityY = parseFloat(config.gravity.attribute("y"));
             _emitterType = getIntValue(config.emitterType);
-            _maxNumParticles = getIntValue(config.maxParticles);
             _lifespan = Math.max(0.01, getFloatValue(config.particleLifeSpan));
             _lifespanVariance = getFloatValue(config.particleLifespanVariance);
             _startSize = getFloatValue(config.startParticleSize);
@@ -253,7 +251,8 @@ package starling.extensions
             _endColorVariance = getColor(config.finishColorVariance);
             blendFactorSource = getBlendFunc(config.blendFuncSource);
             blendFactorDestination = getBlendFunc(config.blendFuncDestination);
-            
+            capacity = getIntValue(config.maxParticles);
+
             // compatibility with future Particle Designer versions
             // (might fix some of the uppercase/lowercase typos)
             
@@ -267,7 +266,7 @@ package starling.extensions
                 _minRadiusVariance = 0.0;
 
             updateEmissionRate();
-            
+
             function getIntValue(element:XMLList):int
             {
                 return parseInt(element.attribute("value"));
@@ -317,12 +316,10 @@ package starling.extensions
         public function get emitterYVariance():Number { return _emitterYVariance; }
         public function set emitterYVariance(value:Number):void { _emitterYVariance = value; }
 
-        public function get maxNumParticles():int { return _maxNumParticles; }
-        public function set maxNumParticles(value:int):void 
-        { 
-            maxCapacity = value;
-            _maxNumParticles = maxCapacity;
-            updateEmissionRate(); 
+        override public function set capacity(value:int):void
+        {
+            super.capacity = value;
+            updateEmissionRate();
         }
 
         public function get lifespan():Number { return _lifespan; }

@@ -22,6 +22,7 @@ package starling.extensions
     import starling.events.Event;
     import starling.rendering.IndexData;
     import starling.rendering.MeshEffect;
+    import starling.rendering.MeshStyle;
     import starling.rendering.Painter;
     import starling.rendering.VertexData;
     import starling.textures.Texture;
@@ -43,7 +44,6 @@ package starling.extensions
         private var _particles:Vector.<Particle>;
         private var _frameTime:Number;
         private var _numParticles:int;
-        private var _maxCapacity:int;
         private var _emissionRate:Number; // emitted particles per second
         private var _emissionTime:Number;
         private var _emitterX:Number;
@@ -69,13 +69,13 @@ package starling.extensions
             _emitterX = _emitterY = 0.0;
             _emissionTime = 0.0;
             _emissionRate = 10;
-            _maxCapacity = MAX_NUM_PARTICLES;
             _blendFactorSource = Context3DBlendFactor.ONE;
             _blendFactorDestination = Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA;
             _batchable = false;
+
+            this.capacity = 128;
             this.texture = texture;
 
-            raiseCapacity(128);
             updateBlendMode();
             updateSupportsRenderCache();
         }
@@ -139,45 +139,6 @@ package starling.extensions
             particle.alpha = 1.0 - particle.currentTime / particle.totalTime;
             particle.currentTime += passedTime;
         }
-        
-        private function raiseCapacity(byAmount:int):void
-        {
-            var i:int;
-            var oldCapacity:int = capacity;
-            var newCapacity:int = Math.min(_maxCapacity, oldCapacity + byAmount);
-            var baseVertexData:VertexData = new VertexData(style.vertexFormat, 4);
-            var texture:Texture = this.texture;
-
-            if (texture)
-            {
-                texture.setupVertexPositions(baseVertexData);
-                texture.setupTextureCoordinates(baseVertexData);
-            }
-            else
-            {
-                baseVertexData.setPoint(0, "position",  0,  0);
-                baseVertexData.setPoint(1, "position", 10,  0);
-                baseVertexData.setPoint(2, "position",  0, 10);
-                baseVertexData.setPoint(3, "position", 10, 10);
-            }
-
-            for (i=oldCapacity; i<newCapacity; ++i)
-            {
-                var numVertices:int = i * 4;
-                baseVertexData.copyTo(_vertexData, numVertices);
-                _indexData.appendQuad(numVertices, numVertices + 1, numVertices + 2, numVertices + 3);
-                _particles[i] = createParticle();
-            }
-
-            if (newCapacity < oldCapacity)
-            {
-                _particles.length = newCapacity;
-                _indexData.numIndices = newCapacity * 6;
-                _vertexData.numVertices = newCapacity * 4;
-            }
-            
-            setRequiresSync();
-        }
 
         private function setRequiresSync():void
         {
@@ -236,6 +197,7 @@ package starling.extensions
 
             var particleIndex:int = 0;
             var particle:Particle;
+            var maxNumParticles:int = capacity;
             
             // advance existing particles
 
@@ -256,7 +218,7 @@ package starling.extensions
                         _particles[int(_numParticles-1)] = particle;
                         _particles[particleIndex] = nextParticle;
                     }
-                    
+
                     --_numParticles;
 
                     if (_numParticles == 0 && _emissionTime == 0)
@@ -273,11 +235,8 @@ package starling.extensions
                 
                 while (_frameTime > 0)
                 {
-                    if (_numParticles < _maxCapacity)
+                    if (_numParticles < maxNumParticles)
                     {
-                        if (_numParticles == capacity)
-                            raiseCapacity(capacity);
-                    
                         particle = _particles[_numParticles] as Particle;
                         initParticle(particle);
                         
@@ -372,10 +331,8 @@ package starling.extensions
          *  throughout their lifespans. */
         public function populate(count:int):void
         {
-            count = Math.min(count, _maxCapacity - _numParticles);
-            
-            if (_numParticles + count > capacity)
-                raiseCapacity(_numParticles + count - capacity);
+            var maxNumParticles:int = capacity;
+            count = Math.min(count, maxNumParticles - _numParticles);
             
             var p:Particle;
             for (var i:int=0; i<count; i++)
@@ -387,18 +344,54 @@ package starling.extensions
             
             _numParticles += count;
         }
+
+        public function get capacity():int { return _vertexData.numVertices / 4; }
+        public function set capacity(value:int):void
+        {
+            var i:int;
+            var oldCapacity:int = capacity;
+            var newCapacity:int = value > MAX_NUM_PARTICLES ? MAX_NUM_PARTICLES : value;
+            var baseVertexData:VertexData = new VertexData(style.vertexFormat, 4);
+            var texture:Texture = this.texture;
+
+            if (texture)
+            {
+                texture.setupVertexPositions(baseVertexData);
+                texture.setupTextureCoordinates(baseVertexData);
+            }
+            else
+            {
+                baseVertexData.setPoint(0, "position",  0,  0);
+                baseVertexData.setPoint(1, "position", 10,  0);
+                baseVertexData.setPoint(2, "position",  0, 10);
+                baseVertexData.setPoint(3, "position", 10, 10);
+            }
+
+            for (i=oldCapacity; i<newCapacity; ++i)
+            {
+                var numVertices:int = i * 4;
+                baseVertexData.copyTo(_vertexData, numVertices);
+                _indexData.appendQuad(numVertices, numVertices + 1, numVertices + 2, numVertices + 3);
+                _particles[i] = createParticle();
+            }
+
+            if (newCapacity < oldCapacity)
+            {
+                _particles.length = newCapacity;
+                _indexData.numIndices = newCapacity * 6;
+                _vertexData.numVertices = newCapacity * 4;
+            }
+
+            _indexData.trim();
+            _vertexData.trim();
+
+            setRequiresSync();
+        }
         
         // properties
 
         public function get isEmitting():Boolean { return _emissionTime > 0 && _emissionRate > 0; }
-        public function get capacity():int { return _vertexData.numVertices / 4; }
         public function get numParticles():int { return _numParticles; }
-        
-        public function get maxCapacity():int { return _maxCapacity; }
-        public function set maxCapacity(value:int):void
-        {
-            _maxCapacity = Math.min(MAX_NUM_PARTICLES, value);
-        }
         
         public function get emissionRate():Number { return _emissionRate; }
         public function set emissionRate(value:Number):void { _emissionRate = value; }
@@ -437,6 +430,15 @@ package starling.extensions
             }
 
             updateBlendMode();
+        }
+
+        override public function setStyle(meshStyle:MeshStyle, mergeWithPredecessor:Boolean = true):void
+        {
+            _effect.dispose();
+            _effect = meshStyle.createEffect();
+            _effect.onRestore = setRequiresSync;
+
+            super.setStyle(meshStyle, mergeWithPredecessor);
         }
 
         /** Indicates if this object will be added to the painter's batch on rendering,
