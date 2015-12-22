@@ -2,6 +2,7 @@
 bin-debug/
 bin-release/
 bin/
+out/
 
 # Project property files
 .settings/
@@ -10,3 +11,9 @@ bin/
 
 # OS X folders
 .DS_Store
+
+# IntelliJ IDEA
+*.iws
+**/.idea/workspace.xml
+**/.idea/tasks.xml
+**/.idea/dictionaries
