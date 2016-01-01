@@ -62,8 +62,6 @@ package starling.extensions
 
             super(_vertexData, _indexData);
 
-            _effect = style.createEffect();
-            _effect.onRestore = setRequiresSync;
             _particles = new Vector.<Particle>(0, false);
             _frameTime = 0.0;
             _emitterX = _emitterY = 0.0;
@@ -432,13 +430,16 @@ package starling.extensions
             updateBlendMode();
         }
 
-        override public function setStyle(meshStyle:MeshStyle, mergeWithPredecessor:Boolean = true):void
+        override public function setStyle(meshStyle:MeshStyle=null,
+                                          mergeWithPredecessor:Boolean=true):void
         {
-            _effect.dispose();
-            _effect = meshStyle.createEffect();
-            _effect.onRestore = setRequiresSync;
-
             super.setStyle(meshStyle, mergeWithPredecessor);
+
+            if (_effect)
+                _effect.dispose();
+
+            _effect = style.createEffect();
+            _effect.onRestore = setRequiresSync;
         }
 
         /** Indicates if this object will be added to the painter's batch on rendering,
