@@ -369,7 +369,7 @@ package starling.extensions
             {
                 var numVertices:int = i * 4;
                 baseVertexData.copyTo(_vertexData, numVertices);
-                _indexData.appendQuad(numVertices, numVertices + 1, numVertices + 2, numVertices + 3);
+                _indexData.addQuad(numVertices, numVertices + 1, numVertices + 2, numVertices + 3);
                 _particles[i] = createParticle();
             }
 
