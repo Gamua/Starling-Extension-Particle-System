@@ -1,6 +1,12 @@
 Starling Extension: Particle System
 ===================================
 
+---
+
+**Warning:** This branch contains the particle system for Starling 1.8 and below. This branch will mainly receive bugfix updates in the future, while all major development is happening on the master branch for Starling 2.x.
+
+---
+
 The Starling Particle System classes provide an easy way to display particle systems from within the [Starling Framework][1]. That way, adding special effects like explosions, smoke, snow, fire, etc. is very easy to do.
 
 The extension consists of three classes:
