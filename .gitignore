@@ -2,6 +2,7 @@
 bin-debug/
 bin-release/
 bin/
+out/
 
 # Project property files
 .settings/
