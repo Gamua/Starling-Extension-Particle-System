@@ -1,7 +1,7 @@
 package
 {
     import flash.ui.Keyboard;
-    
+
     import starling.core.Starling;
     import starling.display.Sprite;
     import starling.events.Event;
@@ -12,7 +12,7 @@ package
     import starling.extensions.PDParticleSystem;
     import starling.extensions.ParticleSystem;
     import starling.textures.Texture;
-    
+
     public class Demo extends Sprite
     {
         // particle designer configurations
@@ -45,24 +45,24 @@ package
 
         // member variables
         
-        private var mParticleSystems:Vector.<ParticleSystem>;
-        private var mParticleSystem:ParticleSystem;
+        private var _particleSystems:Vector.<ParticleSystem>;
+        private var _particleSystem:ParticleSystem;
         
         public function Demo()
         {
             var drugsConfig:XML = XML(new DrugsConfig());
             var drugsTexture:Texture = Texture.fromEmbeddedAsset(DrugsParticle);
-            
+
             var fireConfig:XML = XML(new FireConfig());
             var fireTexture:Texture = Texture.fromEmbeddedAsset(FireParticle);
-            
+
             var sunConfig:XML = XML(new SunConfig());
             var sunTexture:Texture = Texture.fromEmbeddedAsset(SunParticle);
-            
+
             var jellyConfig:XML = XML(new JellyfishConfig());
             var jellyTexture:Texture = Texture.fromEmbeddedAsset(JellyfishParticle);
 
-            mParticleSystems = new <ParticleSystem>[
+            _particleSystems = new <ParticleSystem>[
                 new PDParticleSystem(drugsConfig, drugsTexture),
                 new PDParticleSystem(fireConfig, fireTexture),
                 new PDParticleSystem(sunConfig, sunTexture),
@@ -77,22 +77,22 @@ package
         
         private function startNextParticleSystem():void
         {
-            if (mParticleSystem)
+            if (_particleSystem)
             {
-                mParticleSystem.stop();
-                mParticleSystem.removeFromParent();
-                Starling.juggler.remove(mParticleSystem);
+                _particleSystem.stop();
+                _particleSystem.removeFromParent();
+                Starling.juggler.remove(_particleSystem);
             }
             
-            mParticleSystem = mParticleSystems.shift();
-            mParticleSystems.push(mParticleSystem);
+            _particleSystem = _particleSystems.shift();
+            _particleSystems.push(_particleSystem);
 
-            mParticleSystem.emitterX = 320;
-            mParticleSystem.emitterY = 240;
-            mParticleSystem.start();
+            _particleSystem.emitterX = 320;
+            _particleSystem.emitterY = 240;
+            _particleSystem.start();
             
-            addChild(mParticleSystem);
-            Starling.juggler.add(mParticleSystem);
+            addChild(_particleSystem);
+            Starling.juggler.add(_particleSystem);
         }
         
         private function onAddedToStage(event:Event):void
@@ -120,8 +120,8 @@ package
             var touch:Touch = event.getTouch(stage);
             if (touch && touch.phase != TouchPhase.HOVER)
             {
-                mParticleSystem.emitterX = touch.globalX;
-                mParticleSystem.emitterY = touch.globalY;
+                _particleSystem.emitterX = touch.globalX;
+                _particleSystem.emitterY = touch.globalY;
             }
         }
     }

@@ -11,3 +11,9 @@ out/
 
 # OS X folders
 .DS_Store
+
+# IntelliJ IDEA
+*.iws
+**/.idea/workspace.xml
+**/.idea/tasks.xml
+**/.idea/dictionaries
