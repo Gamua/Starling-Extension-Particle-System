@@ -22,9 +22,9 @@ package starling.extensions
     import starling.events.Event;
     import starling.rendering.IndexData;
     import starling.rendering.MeshEffect;
-    import starling.rendering.MeshStyle;
     import starling.rendering.Painter;
     import starling.rendering.VertexData;
+    import starling.styles.MeshStyle;
     import starling.textures.Texture;
     import starling.utils.MatrixUtil;
 
@@ -75,7 +75,6 @@ package starling.extensions
             this.texture = texture;
 
             updateBlendMode();
-            updateSupportsRenderCache();
         }
 
         /** @inheritDoc */
@@ -83,12 +82,6 @@ package starling.extensions
         {
             _effect.dispose();
             super.dispose();
-        }
-
-        /** @inheritDoc */
-        override protected function get supportsRenderCache():Boolean
-        {
-            return _batchable && super.supportsRenderCache;
         }
 
         /** Always returns <code>null</code>. An actual test would be too expensive. */
@@ -317,6 +310,7 @@ package starling.extensions
                 painter.finishMeshBatch();
                 painter.drawCount += 1;
                 painter.prepareToDraw();
+                painter.excludeFromCache(this);
 
                 if (_requiresSync) syncBuffers();
 
@@ -449,7 +443,7 @@ package starling.extensions
         public function set batchable(value:Boolean):void
         {
             _batchable = value;
-            updateSupportsRenderCache();
+            setRequiresRedraw();
         }
     }
 }

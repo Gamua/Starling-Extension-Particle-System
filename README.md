@@ -33,19 +33,19 @@ Sample Code
 The class `ParticleSystem` extends `DisplayObject` and behaves accordingly. You can add it as a child to the stage or any other container. As usual, you have to add it to a juggler (or call its `advanceTime` method once per frame) to animate it.
 
     // create particle system
-    mParticleSystem = new PDParticleSystem(psConfig, psTexture);
-    mParticleSystem.emitterX = 320;
-    mParticleSystem.emitterY = 240;
+    _particleSystem = new PDParticleSystem(psConfig, psTexture);
+    _particleSystem.emitterX = 320;
+    _particleSystem.emitterY = 240;
     
     // add it to the stage and the juggler
-    addChild(mParticleSystem);
-    Starling.juggler.add(mParticleSystem);
+    addChild(_particleSystem);
+    Starling.juggler.add(_particleSystem);
 
     // start emitting particles
-    mParticleSystem.start();
+    _particleSystem.start();
 
     // stop emitting particles
-    mParticleSystem.stop();
+    _particleSystem.stop();
 
 More information
 ----------------
