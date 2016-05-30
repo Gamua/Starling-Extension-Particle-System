@@ -24,6 +24,7 @@ package starling.extensions
         private var _emitterType:int;                       // emitterType
         private var _emitterXVariance:Number;               // sourcePositionVariance x
         private var _emitterYVariance:Number;               // sourcePositionVariance y
+        private var _defaultDuration:Number;                // duration
         
         // particle configuration
         private var _lifespan:Number;                       // particleLifeSpan
@@ -251,6 +252,7 @@ package starling.extensions
             _endColorVariance = getColor(config.finishColorVariance);
             blendFactorSource = getBlendFunc(config.blendFuncSource);
             blendFactorDestination = getBlendFunc(config.blendFuncDestination);
+            defaultDuration = getFloatValue(config.duration);
             capacity = getIntValue(config.maxParticles);
 
             // compatibility with future Particle Designer versions
@@ -315,6 +317,12 @@ package starling.extensions
 
         public function get emitterYVariance():Number { return _emitterYVariance; }
         public function set emitterYVariance(value:Number):void { _emitterYVariance = value; }
+
+        public function get defaultDuration():Number { return _defaultDuration; }
+        public function set defaultDuration(value:Number):void
+        {
+            _defaultDuration = value < 0 ? Number.MAX_VALUE : value;
+        }
 
         override public function set capacity(value:int):void
         {
