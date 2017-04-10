@@ -372,6 +372,9 @@ package starling.extensions
                 _particles.length = newCapacity;
                 _indexData.numIndices = newCapacity * 6;
                 _vertexData.numVertices = newCapacity * 4;
+
+                if (_numParticles > newCapacity)
+                    _numParticles = newCapacity;
             }
 
             _indexData.trim();
