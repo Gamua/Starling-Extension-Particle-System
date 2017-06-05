@@ -50,6 +50,13 @@ package
         
         public function Demo()
         {
+            addEventListener(Event.ADDED_TO_STAGE, init);
+        }
+
+        private function init():void
+        {
+            stage.color = 0xff000000;
+
             var drugsConfig:XML = XML(new DrugsConfig());
             var drugsTexture:Texture = Texture.fromEmbeddedAsset(DrugsParticle);
 
@@ -68,11 +75,13 @@ package
                 new PDParticleSystem(sunConfig, sunTexture),
                 new PDParticleSystem(jellyConfig, jellyTexture)
             ];
-            
+
             // add event handlers for touch and keyboard
-            
-            addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
-            addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
+
+            stage.addEventListener(KeyboardEvent.KEY_DOWN, onKey);
+            stage.addEventListener(TouchEvent.TOUCH, onTouch);
+
+            startNextParticleSystem();
         }
         
         private function startNextParticleSystem():void
@@ -93,20 +102,6 @@ package
             
             addChild(_particleSystem);
             Starling.juggler.add(_particleSystem);
-        }
-        
-        private function onAddedToStage(event:Event):void
-        {
-            stage.addEventListener(KeyboardEvent.KEY_DOWN, onKey);
-            stage.addEventListener(TouchEvent.TOUCH, onTouch);
-            
-            startNextParticleSystem();
-        }
-        
-        private function onRemovedFromStage(event:Event):void
-        {
-            stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKey);
-            stage.removeEventListener(TouchEvent.TOUCH, onTouch);
         }
         
         private function onKey(event:Event, keyCode:uint):void
