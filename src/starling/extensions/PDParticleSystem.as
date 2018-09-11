@@ -212,7 +212,7 @@ package starling.extensions
         
         private function updateEmissionRate():void
         {
-            emissionRate = capacity / _lifespan;
+            emissionRate = (capacity - 1) / _lifespan;
         }
         
         private function parseConfig(config:XML):void
