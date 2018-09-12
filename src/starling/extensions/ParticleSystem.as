@@ -52,6 +52,10 @@ package starling.extensions
         private var _blendFactorSource:String;
         private var _blendFactorDestination:String;
 
+        // smoothed emitter positions
+        private var _emitterNextX:Number;
+        private var _emitterNextY:Number;
+
         // helper objects
         private static var sHelperMatrix:Matrix = new Matrix();
         private static var sHelperPoint:Point = new Point();
@@ -67,6 +71,7 @@ package starling.extensions
             _particles = new Vector.<Particle>(0, false);
             _frameTime = 0.0;
             _emitterX = _emitterY = 0.0;
+            _emitterNextX = _emitterNextY = 0.0;
             _emissionTime = 0.0;
             _emissionRate = 10;
             _blendFactorSource = Context3DBlendFactor.ONE;
@@ -230,16 +235,33 @@ package starling.extensions
             }
             
             // create and advance new particles
-            
+
             if (_emissionTime > 0)
             {
-                var timeBetweenParticles:Number = 1.0 / _emissionRate;
                 _frameTime += passedTime;
-                
+
+                var frameTimeRatio:Number;
+                var emitterLastX:Number = _emitterX;
+                var emitterLastY:Number = _emitterY;
+                var emitterMoveX:Number = _emitterNextX - emitterLastX;
+                var emitterMoveY:Number = _emitterNextY - emitterLastY;
+                var timeBetweenParticles:Number = 1.0 / _emissionRate;
+
+                // if we'd exceed capacity, lower spawn rate
+                if (_numParticles + (_frameTime / timeBetweenParticles) > maxNumParticles)
+                    timeBetweenParticles = _frameTime / (maxNumParticles - _numParticles);
+
                 while (_frameTime > 0)
                 {
                     if (_numParticles < maxNumParticles)
                     {
+                        if (emitterMoveX || emitterMoveY)
+                        {
+                            frameTimeRatio = 1.0 - (_frameTime / passedTime);
+                            _emitterX = emitterLastX + emitterMoveX * frameTimeRatio;
+                            _emitterY = emitterLastY + emitterMoveY * frameTimeRatio;
+                        }
+
                         particle = _particles[_numParticles] as Particle;
                         initParticle(particle);
                         
@@ -260,6 +282,9 @@ package starling.extensions
                 if (_numParticles == 0 && _emissionTime == 0)
                     dispatchEventWith(Event.COMPLETE);
             }
+
+            _emitterX = _emitterNextX;
+            _emitterY = _emitterNextY;
 
             // update vertex data
             
@@ -403,13 +428,25 @@ package starling.extensions
         
         public function get emissionRate():Number { return _emissionRate; }
         public function set emissionRate(value:Number):void { _emissionRate = value; }
-        
+
+        /** The x-coordinate of the emitter, where new particles are spawning. */
         public function get emitterX():Number { return _emitterX; }
-        public function set emitterX(value:Number):void { _emitterX = value; }
-        
+        public function set emitterX(value:Number):void { _emitterX = _emitterNextX = value; }
+
+        /** The y-coordinate of the emitter, where new particles are spawning. */
         public function get emitterY():Number { return _emitterY; }
-        public function set emitterY(value:Number):void { _emitterY = value; }
-        
+        public function set emitterY(value:Number):void { _emitterY = _emitterNextY = value; }
+
+        /** Smoothly moves the x-coordinate of the emitter to this coordinate during the next frame.
+         *  This provides a homogeneous particle distribution in situations with a low frame rate. */
+        public function get emitterNextX():Number { return _emitterNextX; }
+        public function set emitterNextX(value:Number):void { _emitterNextX = value; }
+
+        /** Smoothly moves the y-coordinate of the emitter to this coordinate during the next frame.
+         *  This provides homogeneous particle distribution in situations with a low frame rate. */
+        public function get emitterNextY():Number { return _emitterNextY; }
+        public function set emitterNextY(value:Number):void { _emitterNextY = value; }
+
         public function get blendFactorSource():String { return _blendFactorSource; }
         public function set blendFactorSource(value:String):void
         {
