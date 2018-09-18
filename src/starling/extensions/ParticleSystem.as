@@ -248,8 +248,11 @@ package starling.extensions
                 var timeBetweenParticles:Number = 1.0 / _emissionRate;
 
                 // if we'd exceed capacity, lower spawn rate
-                if (_numParticles + (_frameTime / timeBetweenParticles) > maxNumParticles)
+                if (_numParticles < maxNumParticles &&
+                    _numParticles + (_frameTime / timeBetweenParticles) > maxNumParticles)
+                {
                     timeBetweenParticles = _frameTime / (maxNumParticles - _numParticles);
+                }
 
                 while (_frameTime > 0)
                 {
