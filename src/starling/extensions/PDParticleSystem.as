@@ -14,9 +14,25 @@ package starling.extensions
 
     import starling.textures.Texture;
     import starling.utils.deg2rad;
+    import starling.display.BlendMode;
 
     public class PDParticleSystem extends ParticleSystem
     {
+        // TODO Would be nice to have this provided directly by starling.display.BlendMode
+        private static const BLEND_MODE_CONFIGURATIONS:Array = [
+            { sourceBlendFactor:Context3DBlendFactor.ONE, destinationBlendFactor:Context3DBlendFactor.ZERO, blendModeName:BlendMode.NONE },
+            { sourceBlendFactor:Context3DBlendFactor.ONE, destinationBlendFactor:Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA, blendModeName:BlendMode.NORMAL },
+            { sourceBlendFactor:Context3DBlendFactor.ONE, destinationBlendFactor:Context3DBlendFactor.ONE, blendModeName:BlendMode.ADD },
+            { sourceBlendFactor:Context3DBlendFactor.DESTINATION_COLOR, destinationBlendFactor:Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA, blendModeName:BlendMode.MULTIPLY },
+            { sourceBlendFactor:Context3DBlendFactor.ONE, destinationBlendFactor:Context3DBlendFactor.ONE_MINUS_SOURCE_COLOR, blendModeName:BlendMode.SCREEN },
+            { sourceBlendFactor:Context3DBlendFactor.ZERO, destinationBlendFactor:Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA, blendModeName:BlendMode.ERASE },
+            { sourceBlendFactor:Context3DBlendFactor.ZERO, destinationBlendFactor:Context3DBlendFactor.SOURCE_ALPHA, blendModeName:BlendMode.MASK },
+            { sourceBlendFactor:Context3DBlendFactor.ONE_MINUS_DESTINATION_ALPHA, destinationBlendFactor:Context3DBlendFactor.DESTINATION_ALPHA, blendModeName:BlendMode.BELOW },
+        ];
+
+        private var _blendFactorSource:String = Context3DBlendFactor.ONE;
+        private var _blendFactorDestination:String = Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA;
+
         public static const EMITTER_TYPE_GRAVITY:int = 0;
         public static const EMITTER_TYPE_RADIAL:int  = 1;
         
@@ -67,7 +83,10 @@ package starling.extensions
         public function PDParticleSystem(config:XML, texture:Texture)
         {
             super(texture);
+
             parseConfig(config);
+
+            updateBlendMode();
         }
         
         protected override function createParticle():Particle
@@ -308,7 +327,66 @@ package starling.extensions
                 }
             }
         }
+
+        public function get blendFactorSource():String { return _blendFactorSource; }
+        public function set blendFactorSource(value:String):void
+        {
+            _blendFactorSource = value;
+            updateBlendMode();
+        }
         
+        public function get blendFactorDestination():String { return _blendFactorDestination; }
+        public function set blendFactorDestination(value:String):void
+        {
+            _blendFactorDestination = value;
+            updateBlendMode();
+        }
+
+        private function updateBlendMode():void
+        {
+            // try to find blend mode name from officially supported blend modes
+            var starlingBlendModeName:String = getBlendModeNameFromBlendFactors(_blendFactorSource, _blendFactorDestination);
+
+            // blend mode not found in officially supported blend modes
+            if (starlingBlendModeName == null)
+            {
+                // register custom new blend mode
+                starlingBlendModeName = _blendFactorSource + ", " + _blendFactorDestination;
+
+                try
+                {
+                    // check if blend mode is already registered
+                    BlendMode.get(starlingBlendModeName); // TODO would be nicer to be able to do: `if (!BlendMode.isRegistered(starlingBlendModeName) { ... } )`
+                }
+                catch (error:ArgumentError)
+                {
+                    // blend mode not registed yet.
+                    BlendMode.register(starlingBlendModeName, _blendFactorSource, _blendFactorDestination);
+                }
+            }
+
+            // update blend mode
+            blendMode = starlingBlendModeName;
+        }
+
+        /**
+         * Get blend mode name for a set for blend factors.
+         * 
+         * Return null if not found.
+         */
+        private static function getBlendModeNameFromBlendFactors(sourceBlendFactor:String, destinationBlendFactor:String):String
+        {
+            for (var i:int = 0; i < BLEND_MODE_CONFIGURATIONS.length; ++i)
+            {
+                var blendModeConfiguration:Object = BLEND_MODE_CONFIGURATIONS[i];
+                if (blendModeConfiguration.sourceBlendFactor == sourceBlendFactor && blendModeConfiguration.destinationBlendFactor == destinationBlendFactor)
+                    return blendModeConfiguration.blendModeName;
+            }
+
+            // no configuration found
+            return null;
+        }
+
         public function get emitterType():int { return _emitterType; }
         public function set emitterType(value:int):void { _emitterType = value; }
 
