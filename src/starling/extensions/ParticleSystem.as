@@ -10,13 +10,11 @@
 
 package starling.extensions
 {
-    import flash.display3D.Context3DBlendFactor;
     import flash.geom.Matrix;
     import flash.geom.Point;
     import flash.geom.Rectangle;
 
     import starling.animation.IAnimatable;
-    import starling.display.BlendMode;
     import starling.display.DisplayObject;
     import starling.display.Mesh;
     import starling.events.Event;
@@ -49,8 +47,6 @@ package starling.extensions
         private var _emissionTime:Number;
         private var _emitterX:Number;
         private var _emitterY:Number;
-        private var _blendFactorSource:String;
-        private var _blendFactorDestination:String;
 
         // smoothed emitter positions
         private var _emitterNextX:Number;
@@ -74,14 +70,10 @@ package starling.extensions
             _emitterNextX = _emitterNextY = 0.0;
             _emissionTime = 0.0;
             _emissionRate = 10;
-            _blendFactorSource = Context3DBlendFactor.ONE;
-            _blendFactorDestination = Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA;
             _batchable = false;
 
             this.capacity = 128;
             this.texture = texture;
-
-            updateBlendMode();
         }
 
         /** @inheritDoc */
@@ -95,36 +87,6 @@ package starling.extensions
         override public function hitTest(localPoint:Point):DisplayObject
         {
             return null;
-        }
-
-        private function updateBlendMode():void
-        {
-            var pma:Boolean = texture ? texture.premultipliedAlpha : true;
-
-            // Particle Designer uses special logic for a certain blend factor combination
-            if (_blendFactorSource == Context3DBlendFactor.ONE &&
-                _blendFactorDestination == Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA)
-            {
-                _vertexData.premultipliedAlpha = pma;
-                if (!pma) _blendFactorSource = Context3DBlendFactor.SOURCE_ALPHA;
-            }
-            else
-            {
-                _vertexData.premultipliedAlpha = false;
-            }
-
-            // When the default normal blend combination is used, use BlendMode.NORMAL instead
-            // of registering a new blendMode - that way, textures can be batched together
-            if (_blendFactorSource == Context3DBlendFactor.ONE &&
-                _blendFactorDestination == Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA)
-            {
-                blendMode = BlendMode.NORMAL
-            }
-            else
-            {
-                blendMode = _blendFactorSource + ", " + _blendFactorDestination;
-                BlendMode.register(blendMode, _blendFactorSource, _blendFactorDestination);
-            }
         }
         
         protected function createParticle():Particle
@@ -450,20 +412,6 @@ package starling.extensions
         public function get emitterNextY():Number { return _emitterNextY; }
         public function set emitterNextY(value:Number):void { _emitterNextY = value; }
 
-        public function get blendFactorSource():String { return _blendFactorSource; }
-        public function set blendFactorSource(value:String):void
-        {
-            _blendFactorSource = value;
-            updateBlendMode();
-        }
-        
-        public function get blendFactorDestination():String { return _blendFactorDestination; }
-        public function set blendFactorDestination(value:String):void
-        {
-            _blendFactorDestination = value;
-            updateBlendMode();
-        }
-        
         override public function set texture(value:Texture):void
         {
             super.texture = value;
@@ -476,8 +424,6 @@ package starling.extensions
                     value.setupTextureCoordinates(_vertexData, i);
                 }
             }
-
-            updateBlendMode();
         }
 
         override public function setStyle(meshStyle:MeshStyle=null,

@@ -12,7 +12,9 @@ package starling.extensions
 {
     import flash.display3D.Context3DBlendFactor;
 
+    import starling.display.BlendMode;
     import starling.textures.Texture;
+    import starling.utils.Pool;
     import starling.utils.deg2rad;
 
     public class PDParticleSystem extends ParticleSystem
@@ -63,7 +65,12 @@ package starling.extensions
         private var _startColorVariance:ColorArgb;          // startColorVariance
         private var _endColor:ColorArgb;                    // finishColor
         private var _endColorVariance:ColorArgb;            // finishColorVariance
-        
+
+        // blend mode configuration
+        private var _blendFactorSource:String;              // blendFuncSource
+        private var _blendFactorDestination:String;         // blendFuncDestination
+
+
         public function PDParticleSystem(config:XML, texture:Texture)
         {
             super(texture);
@@ -214,6 +221,26 @@ package starling.extensions
         {
             emissionRate = (capacity - 1) / _lifespan;
         }
+
+        private function updateBlendMode():void
+        {
+            // try to find blend mode name from currently registered blend modes
+            var blendMode:BlendMode = getBlendModeFromBlendFactors(
+                _blendFactorSource, _blendFactorDestination);
+
+            // blend mode not found
+            if (blendMode == null)
+            {
+                // register custom new blend mode
+                var blendModeName:String = _blendFactorSource + ", " + _blendFactorDestination;
+                if (!BlendMode.isRegistered(blendModeName))
+                    blendMode = BlendMode.register(blendModeName,
+                        _blendFactorSource, _blendFactorDestination);
+            }
+
+            // update blend mode
+            this.blendMode = blendMode.name;
+        }
         
         private function parseConfig(config:XML):void
         {
@@ -250,8 +277,8 @@ package starling.extensions
             _startColorVariance = getColor(config.startColorVariance);
             _endColor = getColor(config.finishColor);
             _endColorVariance = getColor(config.finishColorVariance);
-            blendFactorSource = getBlendFunc(config.blendFuncSource);
-            blendFactorDestination = getBlendFunc(config.blendFuncDestination);
+            _blendFactorSource = getBlendFunc(config.blendFuncSource);
+            _blendFactorDestination = getBlendFunc(config.blendFuncDestination);
             defaultDuration = getFloatValue(config.duration);
             capacity = getIntValue(config.maxParticles);
 
@@ -268,6 +295,7 @@ package starling.extensions
                 _minRadiusVariance = 0.0;
 
             updateEmissionRate();
+            updateBlendMode();
 
             function getIntValue(element:XMLList):int
             {
@@ -307,6 +335,46 @@ package starling.extensions
                     default:    throw new ArgumentError("unsupported blending function: " + value);
                 }
             }
+        }
+
+        /**
+         * Get blend mode name for a set for blend factors.
+         *
+         * Return null if not found.
+         */
+        private static function getBlendModeFromBlendFactors(
+            srcFactor:String, destFactor:String):BlendMode
+        {
+            var blendModes:Array = BlendMode.getAll(Pool.getArray());
+            var numBlendModes:int = blendModes.length;
+            var result:BlendMode = null;
+
+            for (var i:int = 0; i < numBlendModes; ++i)
+            {
+                var blendMode:BlendMode = blendModes[i] as BlendMode;
+                if (blendMode.sourceFactor == srcFactor && blendMode.destinationFactor == destFactor)
+                {
+                    result = blendMode;
+                    break;
+                }
+            }
+
+            Pool.putArray(blendModes);
+            return result;
+        }
+
+        public function get blendFactorSource():String { return _blendFactorSource; }
+        public function set blendFactorSource(value:String):void
+        {
+            _blendFactorSource = value;
+            updateBlendMode();
+        }
+
+        public function get blendFactorDestination():String { return _blendFactorDestination; }
+        public function set blendFactorDestination(value:String):void
+        {
+            _blendFactorDestination = value;
+            updateBlendMode();
         }
         
         public function get emitterType():int { return _emitterType; }
