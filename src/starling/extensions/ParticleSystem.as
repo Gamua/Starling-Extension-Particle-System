@@ -162,12 +162,10 @@ package starling.extensions
         
         public function advanceTime(passedTime:Number):void
         {
-            setRequiresRedraw();
-            setRequiresSync();
-
             var particleIndex:int = 0;
             var particle:Particle;
             var maxNumParticles:int = capacity;
+            var numParticlesBefore:int = _numParticles;
             
             // advance existing particles
 
@@ -294,6 +292,12 @@ package starling.extensions
                     _vertexData.setPoint(vertexID+2, "position", x - offsetX, y + offsetY);
                     _vertexData.setPoint(vertexID+3, "position", x + offsetX, y + offsetY);
                 }
+            }
+
+            // Allow starling skip the frame when there is no active particles.
+            if (_numParticles > 0 || numParticlesBefore > 0) {
+                setRequiresRedraw();
+                setRequiresSync();
             }
         }
 
