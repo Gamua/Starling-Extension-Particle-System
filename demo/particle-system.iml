@@ -2,21 +2,12 @@
 <module type="Flex" version="4">
   <component name="FlexBuildConfigurationManager" active="particle-system">
     <configurations>
-      <configuration name="particle-system" pure-as="true" main-class="Startup" output-file="particle-system.swf" output-folder="$MODULE_DIR$/out">
-        <dependencies target-player="25.0">
-          <entries>
-            <entry module-name="starling" build-configuration-name="starling">
-              <dependency linkage="Merged" />
-            </entry>
-          </entries>
-          <sdk name="air-25" />
+      <configuration name="particle-system" target-platform="Desktop" pure-as="true" main-class="Startup" output-file="particle-system.swf" output-folder="$MODULE_DIR$/out">
+        <dependencies target-player="32.0">
+          <sdk name="air-33" />
         </dependencies>
-        <compiler-options>
-          <map>
-            <entry key="compiler.debug.swf" value="true" />
-          </map>
-        </compiler-options>
-        <packaging-air-desktop />
+        <compiler-options />
+        <packaging-air-desktop use-generated-descriptor="false" custom-descriptor-path="$MODULE_DIR$/src/Demo-app.xml" package-file-name="particle-system" />
         <packaging-android />
         <packaging-ios />
       </configuration>
@@ -31,8 +22,10 @@
     <content url="file://$MODULE_DIR$/../src">
       <sourceFolder url="file://$MODULE_DIR$/../src" isTestSource="false" />
     </content>
-    <orderEntry type="jdk" jdkName="air-25" jdkType="Flex SDK Type (new)" />
+    <content url="file://$MODULE_DIR$/../../../starling/starling/src">
+      <sourceFolder url="file://$MODULE_DIR$/../../../starling/starling/src" isTestSource="false" />
+    </content>
+    <orderEntry type="jdk" jdkName="air-33" jdkType="Flex SDK Type (new)" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="starling" exported="" />
   </component>
 </module>
