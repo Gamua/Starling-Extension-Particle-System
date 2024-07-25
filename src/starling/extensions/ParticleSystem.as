@@ -29,11 +29,11 @@ package starling.extensions
 
     /** Dispatched when emission of particles is finished. */
     [Event(name="complete", type="starling.events.Event")]
-    
+
     public class ParticleSystem extends Mesh implements IAnimatable
     {
         public static const MAX_NUM_PARTICLES:int = 16383;
-        
+
         private var _effect:MeshEffect;
         private var _vertexData:VertexData;
         private var _indexData:IndexData;
@@ -47,6 +47,7 @@ package starling.extensions
         private var _emissionTime:Number;
         private var _emitterX:Number;
         private var _emitterY:Number;
+        private var _targetCapacity:int;
 
         // smoothed emitter positions
         private var _emitterNextX:Number;
@@ -88,12 +89,12 @@ package starling.extensions
         {
             return null;
         }
-        
+
         protected function createParticle():Particle
         {
             return new Particle();
         }
-        
+
         protected function initParticle(particle:Particle):void
         {
             particle.x = _emitterX;
@@ -128,7 +129,7 @@ package starling.extensions
             if (_emissionRate != 0)
                 _emissionTime = duration;
         }
-        
+
         /** Stops emitting new particles. Depending on 'clearParticles', the existing particles
          *  will either keep animating until they die or will be removed right away. */
         public function stop(clearParticles:Boolean=false):void
@@ -136,43 +137,43 @@ package starling.extensions
             _emissionTime = 0.0;
             if (clearParticles) clear();
         }
-        
+
         /** Removes all currently active particles. */
         public function clear():void
         {
             _numParticles = 0;
         }
-        
+
         /** Returns an empty rectangle at the particle system's position. Calculating the
          *  actual bounds would be too expensive. */
-        public override function getBounds(targetSpace:DisplayObject, 
+        public override function getBounds(targetSpace:DisplayObject,
                                            resultRect:Rectangle=null):Rectangle
         {
             if (resultRect == null) resultRect = new Rectangle();
-            
+
             getTransformationMatrix(targetSpace, sHelperMatrix);
             MatrixUtil.transformCoords(sHelperMatrix, 0, 0, sHelperPoint);
-            
+
             resultRect.x = sHelperPoint.x;
             resultRect.y = sHelperPoint.y;
             resultRect.width = resultRect.height = 0;
-            
+
             return resultRect;
         }
-        
+
         public function advanceTime(passedTime:Number):void
         {
             var particleIndex:int = 0;
             var particle:Particle;
-            var maxNumParticles:int = capacity;
+            var maxNumParticles:int = Math.min(_targetCapacity, capacity);
             var numParticlesBefore:int = _numParticles;
-            
+
             // advance existing particles
 
             while (particleIndex < _numParticles)
             {
                 particle = _particles[particleIndex] as Particle;
-                
+
                 if (particle.currentTime < particle.totalTime)
                 {
                     advanceParticle(particle, passedTime);
@@ -193,7 +194,12 @@ package starling.extensions
                         dispatchEventWith(Event.COMPLETE);
                 }
             }
-            
+
+            // adjust mesh capacity following particles death
+
+            if (numParticlesBefore > _numParticles)
+                syncCapacity();
+
             // create and advance new particles
 
             if (_emissionTime > 0)
@@ -227,7 +233,7 @@ package starling.extensions
 
                         particle = _particles[_numParticles] as Particle;
                         initParticle(particle);
-                        
+
                         // particle might be dead at birth
                         if (particle.totalTime > 0.0)
                         {
@@ -235,10 +241,10 @@ package starling.extensions
                             ++_numParticles;
                         }
                     }
-                    
+
                     _frameTime -= timeBetweenParticles;
                 }
-                
+
                 if (_emissionTime != Number.MAX_VALUE)
                     _emissionTime = _emissionTime > passedTime ? _emissionTime - passedTime : 0.0;
 
@@ -250,14 +256,14 @@ package starling.extensions
             _emitterY = _emitterNextY;
 
             // update vertex data
-            
+
             var vertexID:int = 0;
             var rotation:Number;
             var x:Number, y:Number;
             var offsetX:Number, offsetY:Number;
             var pivotX:Number = texture ? texture.width  / 2 : 5;
             var pivotY:Number = texture ? texture.height / 2 : 5;
-            
+
             for (var i:int=0; i<_numParticles; ++i)
             {
                 vertexID = i * 4;
@@ -278,13 +284,13 @@ package starling.extensions
                     var cosY:Number = cos * offsetY;
                     var sinX:Number = sin * offsetX;
                     var sinY:Number = sin * offsetY;
-                    
+
                     _vertexData.setPoint(vertexID,   "position", x - cosX + sinY, y - sinX - cosY);
                     _vertexData.setPoint(vertexID+1, "position", x + cosX + sinY, y + sinX - cosY);
                     _vertexData.setPoint(vertexID+2, "position", x - cosX - sinY, y - sinX + cosY);
                     _vertexData.setPoint(vertexID+3, "position", x + cosX - sinY, y + sinX + cosY);
                 }
-                else 
+                else
                 {
                     // optimization for rotation == 0
                     _vertexData.setPoint(vertexID,   "position", x - offsetX, y - offsetY);
@@ -332,7 +338,7 @@ package starling.extensions
         {
             var maxNumParticles:int = capacity;
             count = Math.min(count, maxNumParticles - _numParticles);
-            
+
             var p:Particle;
             for (var i:int=0; i<count; i++)
             {
@@ -340,7 +346,7 @@ package starling.extensions
                 initParticle(p);
                 advanceParticle(p, Math.random() * p.totalTime);
             }
-            
+
             _numParticles += count;
         }
 
@@ -349,7 +355,8 @@ package starling.extensions
         {
             var i:int;
             var oldCapacity:int = capacity;
-            var newCapacity:int = value > MAX_NUM_PARTICLES ? MAX_NUM_PARTICLES : value;
+            var newCapacity:int = Math.max(Math.min(value, MAX_NUM_PARTICLES), 0);
+            _targetCapacity = newCapacity;
             var baseVertexData:VertexData = new VertexData(style.vertexFormat, 4);
             var texture:Texture = this.texture;
 
@@ -366,6 +373,7 @@ package starling.extensions
                 baseVertexData.setPoint(3, "position", 10, 10);
             }
 
+            // add more capacity
             for (i=oldCapacity; i<newCapacity; ++i)
             {
                 var numVertices:int = i * 4;
@@ -374,27 +382,39 @@ package starling.extensions
                 _particles[i] = createParticle();
             }
 
-            if (newCapacity < oldCapacity)
-            {
-                _particles.length = newCapacity;
-                _indexData.numIndices = newCapacity * 6;
-                _vertexData.numVertices = newCapacity * 4;
-
-                if (_numParticles > newCapacity)
-                    _numParticles = newCapacity;
-            }
-
-            _indexData.trim();
-            _vertexData.trim();
+            syncCapacity();
 
             setRequiresSync();
         }
-        
+
+        /** Tries to synchronize the capacity with the target capacity. */
+        private function syncCapacity():void
+        {
+            // update the mesh capacity if the target capacity is lower than the actual one
+            // and keep the living particles
+            if (_targetCapacity < capacity)
+                tryReduceMeshCapacity(Math.max(_targetCapacity, _numParticles));
+        }
+
+        /** Tries to reduce the mesh capacity from a given new capacity. */
+        private function tryReduceMeshCapacity(newCapacity:int):void
+        {
+            if (newCapacity < capacity)
+            {
+                _indexData.numIndices = newCapacity * 6;
+                _vertexData.numVertices = newCapacity * 4;
+                _indexData.trim();
+                _vertexData.trim();
+
+                setRequiresSync();
+            }
+        }
+
         // properties
 
         public function get isEmitting():Boolean { return _emissionTime > 0 && _emissionRate > 0; }
         public function get numParticles():int { return _numParticles; }
-        
+
         public function get emissionRate():Number { return _emissionRate; }
         public function set emissionRate(value:Number):void { _emissionRate = value; }
 
